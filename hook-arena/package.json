@@ -1,0 +1,15 @@
+{
+  "name": "hook-arena",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Rank headlines, subject lines and hooks with a Jev pairwise tournament.",
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

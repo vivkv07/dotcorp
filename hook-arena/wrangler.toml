@@ -1,0 +1,27 @@
+name = "hook-arena"
+main = "src/worker.js"
+compatibility_date = "2026-09-01"
+
+[assets]
+directory = "./public"
+# Static files are served first; anything else (the /api/* routes) hits the Worker.
+not_found_handling = "single-page-application"
+
+[vars]
+# Optional: force a provider ("typesafe" | "openrouter" | "cloudflare").
+# Otherwise the Worker picks one based on which secret is set.
+# JEV_PROVIDER = "openrouter"
+# APP_URL = "https://hookarena.app"
+# LEMONSQUEEZY_STORE_ID = "12345"
+
+# Quotas and license caching. Create with:
+#   npx wrangler kv namespace create ARENA_KV
+# then paste the id below. Without it, quotas are off (fine for local dev).
+# [[kv_namespaces]]
+# binding = "ARENA_KV"
+# id = "..."
+
+# Secrets (set with `npx wrangler secret put NAME`), pick ONE provider:
+#   OPENROUTER_API_KEY                            (no waitlist)
+#   CLOUDFLARE_ACCOUNT_ID + CLOUDFLARE_API_TOKEN  (no waitlist, Workers AI)
+#   TYPESAFE_API_KEY                              (direct, waitlist)

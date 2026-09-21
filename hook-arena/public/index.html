@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hook Arena</title>
+  <meta name="description" content="Paste up to 20 headlines, subject lines or hooks. A Jev pairwise tournament ranks them with calibrated win probabilities in seconds." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="/">Hook Arena</a>
+    <nav>
+      <a href="#how">How it works</a>
+      <a href="#pricing">Pricing</a>
+      <button id="pro-btn" class="ghost">Pro</button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1>Stop guessing which headline wins.</h1>
+      <p class="lede">
+        Paste 3 to 20 headlines, subject lines or hooks. Every pair goes head to head,
+        in both orders, judged by Jev, a decision model that returns calibrated
+        probabilities instead of opinions. You get a ranking, a win margin, and a
+        clickbait flag per line. Usually under three seconds.
+      </p>
+    </section>
+
+    <section class="arena" id="arena">
+      <form id="form">
+        <label for="candidates">Candidates, one per line</label>
+        <textarea id="candidates" rows="8" spellcheck="false" placeholder="How I cut our Databricks bill by 40% in one sprint
+The Unity Catalog mistake every team makes in month one
+We migrated 200 pipelines. Here is what broke.
+Your data platform is not AI-ready. Here is the test.
+Stop building dashboards nobody opens"></textarea>
+
+        <div class="row">
+          <div class="field">
+            <label for="audience">Who is reading?</label>
+            <input id="audience" type="text" maxlength="300" placeholder="Senior data engineers on LinkedIn" />
+          </div>
+          <div class="field small">
+            <label for="format">Format</label>
+            <select id="format">
+              <option value="headline">Headline</option>
+              <option value="subject">Email subject</option>
+              <option value="hook">Social hook</option>
+              <option value="name">Product name</option>
+              <option value="tagline">Tagline</option>
+            </select>
+          </div>
+          <div class="field small">
+            <label for="goal">You want them to</label>
+            <select id="goal">
+              <option value="click">Click</option>
+              <option value="open">Open</option>
+              <option value="reply">Reply</option>
+              <option value="buy">Buy / sign up</option>
+              <option value="remember">Remember it</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="run" type="submit" class="primary">Run the tournament</button>
+          <span id="status" class="status" aria-live="polite"></span>
+        </div>
+      </form>
+
+      <div id="error" class="error" hidden></div>
+
+      <section id="results" class="results" hidden>
+        <div class="results-head">
+          <h2>Ranking</h2>
+          <p id="summary" class="muted"></p>
+        </div>
+        <ol id="ranking" class="ranking"></ol>
+        <details class="matrix-wrap">
+          <summary>Head-to-head matrix</summary>
+          <p class="muted">Each cell is the probability that the row beats the column.</p>
+          <div class="scroll"><table id="matrix"></table></div>
+        </details>
+        <div class="actions">
+          <button id="copy" class="ghost" type="button">Copy winner</button>
+          <button id="share" class="ghost" type="button">Copy results as text</button>
+        </div>
+      </section>
+    </section>
+
+    <section id="how" class="prose">
+      <h2>How it works</h2>
+      <ol>
+        <li><strong>Every pair, both orders.</strong> 10 candidates is 45 pairs and 90 judgments, so position bias cancels out.</li>
+        <li><strong>Calibrated, not chatty.</strong> Jev returns a probability for each side of every matchup, not a paragraph of reasoning.</li>
+        <li><strong>Bradley-Terry ranking.</strong> The same model chess and sports ratings use turns 90 matchups into one ordered list with a win margin.</li>
+        <li><strong>Clickbait flag.</strong> A separate yes/no judgment per line asks whether it overpromises. A winner that also lights up red is a warning.</li>
+      </ol>
+      <p>Judging is not writing. Use your own voice for the candidates; use the arena to pick.</p>
+    </section>
+
+    <section id="pricing" class="pricing">
+      <h2>Pricing</h2>
+      <div class="plans">
+        <div class="plan">
+          <h3>Free</h3>
+          <p class="price">$0</p>
+          <ul>
+            <li>3 rankings per day</li>
+            <li>Up to 8 candidates</li>
+            <li>Full matrix and clickbait flags</li>
+          </ul>
+        </div>
+        <div class="plan featured">
+          <h3>Pro</h3>
+          <p class="price">$9<span>/month</span></p>
+          <ul>
+            <li>300 rankings per day</li>
+            <li>Up to 20 candidates</li>
+            <li>API access with your license key</li>
+            <li>Cancel any time</li>
+          </ul>
+          <a id="buy" class="primary button" href="#" target="_blank" rel="noopener">Get Pro</a>
+          <p class="muted tiny">Already have a key? <button id="enter-key" class="link" type="button">Enter it</button></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Built with <a href="https://typesafe.ai" rel="noopener">Jev</a>. Listed on <a href="https://madewithjev.com" rel="noopener">madewithjev.com</a>.</p>
+  </footer>
+
+  <dialog id="pro-dialog">
+    <form method="dialog">
+      <h3>Pro license</h3>
+      <p class="muted">Paste the license key from your purchase email.</p>
+      <input id="key" type="text" placeholder="XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX" autocomplete="off" />
+      <p id="key-status" class="status"></p>
+      <div class="actions">
+        <button id="save-key" type="button" class="primary">Activate</button>
+        <button id="clear-key" type="button" class="ghost">Remove key</button>
+        <button value="close" class="ghost">Close</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>

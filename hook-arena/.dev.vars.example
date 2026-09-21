@@ -1,0 +1,6 @@
+# Copy to .dev.vars for `npm run dev`. Pick one provider.
+OPENROUTER_API_KEY=
+# CLOUDFLARE_ACCOUNT_ID=
+# CLOUDFLARE_API_TOKEN=
+# TYPESAFE_API_KEY=
+# LEMONSQUEEZY_STORE_ID=
