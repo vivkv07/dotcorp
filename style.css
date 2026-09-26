@@ -28,6 +28,14 @@
   --pill-bg-hover: #333333;
   --field-bg: #ffffff;
   --err: #b3261e;
+  /* Two accents on top of the ink. Green is for data and health; gold is for
+     anything that acts: automations, actions, systems of action, selection. */
+  --gold: #c9a227;
+  --gold-ink: #7a5c05;
+  --gold-soft: #f7efd3;
+  --green: #2f8a55;
+  --green-ink: #1e5f3a;
+  --green-soft: #e1f0e5;
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 12px 32px rgba(0, 0, 0, 0.10);
   --display: 'Switzer', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
   --container: 1280px;
@@ -61,6 +69,12 @@
     --pill-bg-hover: #cccccc;
     --field-bg: #0b0b0b;
     --err: #f2b8b5;
+    --gold: #e2bb4a;
+    --gold-ink: #f1d585;
+    --gold-soft: #2a2310;
+    --green: #5cbb84;
+    --green-ink: #9ddfb8;
+    --green-soft: #0f2618;
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 12px 32px rgba(0, 0, 0, 0.6);
   }
 }
@@ -94,7 +108,7 @@ header.site {
 .hd { max-width: var(--container); margin: 0 auto; padding: 0 var(--pad); width: 100%; display: flex; align-items: center; gap: 40px; }
 .mark { font-size: 16px; font-weight: 500; letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px; }
 .mark i { width: 12px; height: 12px; border: 1.5px solid var(--fg); border-radius: 50%; position: relative; }
-.mark i::after { content: ""; position: absolute; inset: 2.5px; background: var(--fg); border-radius: 50%; }
+.mark i::after { content: ""; position: absolute; inset: 2.5px; background: var(--gold); border-radius: 50%; }
 .hnav { display: flex; gap: 26px; margin-right: auto; }
 .hnav a { font-size: 14px; font-weight: 500; letter-spacing: 0; color: var(--nav); transition: color var(--t-color); }
 .hnav a:hover { color: var(--fg); }
@@ -121,7 +135,7 @@ header.site {
   letter-spacing: -0.03em; line-height: 1; max-width: 14ch;
 }
 .hero h1 em { font-style: normal; color: var(--fg-44); transition: color var(--t-color); }
-.hero h1 em.set { color: var(--fg); }
+.hero h1 em.set { color: var(--gold-ink); }
 .lede { font-size: 19px; line-height: 1.6; color: var(--fg-60); max-width: 56ch; margin-top: 26px; }
 .herobtns { display: flex; gap: 10px; margin-top: 34px; flex-wrap: wrap; align-items: center; }
 .company-field {
@@ -129,11 +143,11 @@ header.site {
   background: var(--field-bg); border: 1px solid var(--fg-12); border-radius: 40px;
   transition: border-color var(--t-color);
 }
-.company-field:focus-within { border-color: var(--fg); }
+.company-field:focus-within { border-color: var(--gold); }
 .company-field input { border: 0; background: none; outline: none; width: 100%; font-size: 14px; font-weight: 500; }
 .company-field input::placeholder { color: var(--fg-44); font-weight: 400; }
 .stats { list-style: none; display: flex; gap: 22px; margin-top: 22px; font-size: 14px; color: var(--fg-44); }
-.stats b { color: var(--fg); font-weight: 500; }
+.stats b { color: var(--green-ink); font-weight: 500; }
 .menu { position: relative; }
 .menu-items {
   display: none; position: absolute; left: 0; top: calc(100% + 8px); min-width: 180px;
@@ -172,13 +186,13 @@ body.ready .stage-tilt { opacity: 1; }
 .grid line { stroke: var(--bg); stroke-width: 1; }
 .ontology-tag rect { fill: var(--bg); stroke: var(--fg-78); stroke-width: 1; }
 .ontology-tag circle { fill: none; stroke: var(--fg); stroke-width: 1.2; }
-.ontology-tag circle.dot { fill: var(--fg); stroke: none; }
+.ontology-tag circle.dot { fill: var(--green); stroke: none; }
 .ontology-tag text { font-size: 11px; font-weight: 500; }
 
 /* wires */
 .wire { fill: none; stroke: var(--fg-44); stroke-width: 1; }
-.wire-dots { fill: none; stroke: var(--fg); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 0.1 28; animation: flow 3s linear infinite; opacity: .7; }
-.tier-bottom .wire-dots { animation-direction: reverse; }
+.wire-dots { fill: none; stroke: var(--gold); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 0.1 28; animation: flow 3s linear infinite; opacity: .9; }
+.tier-bottom .wire-dots { animation-direction: reverse; stroke: var(--green); }
 @keyframes flow { to { stroke-dashoffset: -28.1; } }
 
 /* monitors */
@@ -186,27 +200,29 @@ body.ready .stage-tilt { opacity: 1; }
 .mon-bar { stroke: var(--fg-12); stroke-width: 1; }
 .mon-btn { fill: var(--fg-18); }
 .mon-stand { stroke: var(--fg-78); stroke-width: 1; fill: none; }
-.mini-line { fill: none; stroke: var(--fg); stroke-width: 1.2; }
-.mini-dot { fill: var(--fg); }
-.mini-bar { fill: var(--surface); stroke: var(--fg-60); stroke-width: .8; }
+.mini-line { fill: none; stroke: var(--green); stroke-width: 1.2; }
+.mini-dot { fill: var(--green); }
+.mini-bar { fill: var(--gold-soft); stroke: var(--gold); stroke-width: .8; }
 .mini-map { fill: none; stroke: var(--fg-18); stroke-width: 1.2; stroke-dasharray: 3 2; }
-.mini-pin { fill: var(--bg); stroke: var(--fg); stroke-width: 1; }
+.mini-pin { fill: var(--green-soft); stroke: var(--green); stroke-width: 1; }
 .mini-row { fill: var(--surface); stroke: var(--fg-12); stroke-width: .8; }
-.mini-check { fill: var(--fg); }
-.mini-card { fill: var(--bg); stroke: var(--fg-44); stroke-width: .8; }
+.mini-check { fill: var(--gold); }
+.mini-card { fill: var(--gold-soft); stroke: var(--gold); stroke-width: .8; }
 .mini-tree { fill: none; stroke: var(--fg-60); stroke-width: 1; }
 .mini-node { fill: var(--surface); stroke: var(--fg-60); stroke-width: .8; }
-.mini-action { fill: var(--pill-bg); stroke: none; }
-.mini-text { fill: var(--pill-fg); text-anchor: middle; font-weight: 500; }
+.mini-action { fill: var(--gold); stroke: none; }
+.mini-text { fill: #000; text-anchor: middle; font-weight: 500; }
 
 /* tiles: three tiers told apart by weight of line, not by colour */
 .tile rect { transition: fill var(--t-bg), stroke var(--t-color); }
 .tile text { text-anchor: middle; font-size: 12px; font-weight: 500; fill: var(--fg-78); }
-.tile-data rect { fill: var(--surface); stroke: var(--fg-12); stroke-width: 1; }
+.tile-data rect { fill: var(--green-soft); stroke: var(--green); stroke-width: 1; }
+.tile-data text { fill: var(--green-ink); }
 .tile-logic rect { fill: var(--bg); stroke: var(--fg-44); stroke-width: 1; stroke-dasharray: 3 3; }
-.tile-action rect { fill: var(--bg); stroke: var(--fg); stroke-width: 1; }
+.tile-action rect { fill: var(--gold-soft); stroke: var(--gold); stroke-width: 1; }
+.tile-action text { fill: var(--gold-ink); }
 .tile { cursor: text; }
-.tile:hover rect { fill: var(--surface-hover); stroke: var(--fg); }
+.tile:hover rect { stroke: var(--fg); }
 
 /* pills in the diagram */
 .pill rect { stroke-width: 1; transition: fill var(--t-bg), stroke var(--t-color); }
@@ -215,10 +231,10 @@ body.ready .stage-tilt { opacity: 1; }
 .pill-object text { fill: var(--pill-fg); font-weight: 500; }
 .pill-verb rect { fill: var(--bg); stroke: var(--fg-18); }
 .pill-verb text { fill: var(--fg-60); }
-.pill-auto rect { fill: var(--surface); stroke: var(--fg-60); stroke-dasharray: 2 2; }
-.pill-auto text { fill: var(--fg-78); font-weight: 500; }
-.pill-action rect { fill: var(--bg); stroke: var(--fg); }
-.pill-action text { fill: var(--fg); font-weight: 500; }
+.pill-auto rect { fill: var(--gold); stroke: var(--gold); }
+.pill-auto text { fill: #000; font-weight: 500; }
+.pill-action rect { fill: var(--bg); stroke: var(--gold); }
+.pill-action text { fill: var(--gold-ink); font-weight: 500; }
 .pill-outline rect { fill: var(--bg); stroke: var(--fg-44); }
 .pill-outline text { fill: var(--fg-60); font-weight: 500; }
 
@@ -226,9 +242,14 @@ body.ready .stage-tilt { opacity: 1; }
 .edge { transition: opacity var(--t-color); }
 .edge-line { stroke: var(--fg-60); stroke-width: 1; transition: stroke var(--t-color), stroke-width var(--t-color); }
 #arrow path { fill: var(--fg-60); }
-.edge.sel .edge-line, .edge.lit .edge-line { stroke: var(--fg); stroke-width: 1.6; }
-.edge.sel .pill-verb rect, .edge.lit .pill-verb rect { fill: var(--pill-bg); stroke: var(--pill-bg); }
-.edge.sel .pill-verb text, .edge.lit .pill-verb text { fill: var(--pill-fg); }
+#arrow-gold path { fill: var(--gold); }
+.edge.sel .edge-line { marker-end: url(#arrow-gold); }
+.edge.lit .edge-line { stroke: var(--fg); stroke-width: 1.6; }
+.edge.lit .pill-verb rect { fill: var(--pill-bg); stroke: var(--pill-bg); }
+.edge.lit .pill-verb text { fill: var(--pill-fg); }
+.edge.sel .edge-line { stroke: var(--gold); stroke-width: 1.8; }
+.edge.sel .pill-verb rect { fill: var(--gold); stroke: var(--gold); }
+.edge.sel .pill-verb text { fill: #000; }
 .edge.dim { opacity: .22; }
 /* a link to the selected object draws itself from the source to the target */
 .stage.choreo .edge.sel .edge-line { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw var(--t-reveal) forwards; }
@@ -244,8 +265,8 @@ body.ready .stage-tilt { opacity: 1; }
 .disc-shadow { fill: var(--surface-hover); stroke: var(--fg-44); stroke-width: 1; }
 .disc { fill: var(--bg); stroke: var(--fg); stroke-width: 1; transition: fill var(--t-bg); }
 .node:hover .disc, .node.lit .disc { fill: var(--surface-2); }
-.node.selected .disc { stroke-width: 1.5; }
-.disc-ring { fill: none; stroke: var(--fg); stroke-width: 1; opacity: 0; transform-box: fill-box; transform-origin: center; }
+.node.selected .disc { stroke: var(--gold); stroke-width: 1.5; fill: var(--gold-soft); }
+.disc-ring { fill: none; stroke: var(--gold); stroke-width: 1.2; opacity: 0; transform-box: fill-box; transform-origin: center; }
 .node.selected .disc-ring { opacity: 1; animation: bloom var(--t-reveal) both, breathe 2.6s ease-in-out 0.8s infinite; }
 @keyframes bloom { from { transform: scale(.55); opacity: 0; } 60% { opacity: 1; } to { transform: scale(1); opacity: 1; } }
 @keyframes breathe { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .35; transform: scale(1.06); } }
@@ -266,14 +287,14 @@ body.ready .stage-tilt { opacity: 1; }
 .card-rule { stroke: var(--hair); }
 .card-label { font-size: 11px; fill: var(--fg-60); }
 .card-value { font-size: 11px; fill: var(--fg); font-weight: 500; }
-.card-auto { font-size: 11px; fill: var(--fg-78); font-weight: 500; }
-.dot-ok { fill: var(--fg); }
+.card-auto { font-size: 11px; fill: var(--gold-ink); font-weight: 500; }
+.dot-ok { fill: var(--green); }
 .dot-info { fill: var(--fg-44); }
 .dot-neutral { fill: var(--fg-18); }
-.dot-warn { fill: none; stroke: var(--fg); stroke-width: 1.2; }
+.dot-warn { fill: var(--gold); }
 .dot-bad { fill: var(--err); }
-.card-leader { fill: none; stroke: var(--fg-44); stroke-width: 1; stroke-dasharray: 3 3; }
-.card-leader-dot { fill: var(--fg); }
+.card-leader { fill: none; stroke: var(--gold); stroke-width: 1; stroke-dasharray: 3 3; }
+.card-leader-dot { fill: var(--gold); }
 .stage.choreo .card { animation: rise var(--t-reveal) both; }
 .stage.choreo .card .row { animation: rise var(--t-reveal) both; animation-delay: calc(60ms + var(--i, 0) * 40ms); }
 .stage.choreo .card-leader { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw var(--t-reveal) 120ms both; }
@@ -318,7 +339,8 @@ body.ready .stage-tilt { opacity: 1; }
 .icard .meta { font-size: 14px; color: var(--fg-44); margin-top: 4px; }
 .icard ul { list-style: none; margin-top: 14px; }
 .icard li { font-size: 14px; color: var(--fg-44); line-height: 1.45; padding: 5px 0; border-bottom: 1px solid var(--hair); }
-.icard[aria-current="true"] .ihead::after { content: "Showing"; margin-left: auto; font-size: 12px; font-weight: 500; color: var(--fg-44); }
+.icard[aria-current="true"] .ihead::after { content: "Showing"; margin-left: auto; font-size: 12px; font-weight: 500; color: var(--green-ink); background: var(--green-soft); padding: 2px 8px; border-radius: 40px; }
+.icard:hover h3 { color: var(--gold-ink); transition: color var(--t-color); }
 .tilt {
   transform-style: preserve-3d;
   transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
@@ -341,8 +363,9 @@ body.ready .stage-tilt { opacity: 1; }
 .band > div { position: relative; transform: translateY(var(--py, 0px)); }
 .band h2 { font-size: 40px; font-weight: 500; letter-spacing: -0.03em; line-height: 1.05; max-width: 16ch; }
 .band p { font-size: 16px; color: var(--fg-60); margin-top: 12px; max-width: 48ch; line-height: 1.55; }
-.band .art { position: absolute; inset: 0; opacity: .32; pointer-events: none; }
-.band .art path, .band .art circle { stroke: var(--fg); }
+.band .art { position: absolute; inset: 0; opacity: .55; pointer-events: none; }
+.band .art path:nth-child(odd) { stroke: var(--green); }
+.band .art path:nth-child(even) { stroke: var(--gold); }
 .band .herobtns { margin-top: 0; }
 
 footer.shell { padding-block: 64px 56px; margin-top: 40px; display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; font-size: 14px; color: var(--fg-44); border-top: 1px solid var(--fg-12); }
@@ -367,7 +390,7 @@ footer.shell { padding-block: 64px 56px; margin-top: 40px; display: flex; justif
   background: var(--field-bg); border: 1px solid var(--fg-12); border-radius: var(--r);
   padding: 7px 10px; outline: none; transition: border-color var(--t-color);
 }
-.drawer input:focus, .drawer select:focus, .drawer textarea:focus { border-color: var(--fg); }
+.drawer input:focus, .drawer select:focus, .drawer textarea:focus { border-color: var(--gold); }
 .row { display: flex; gap: 8px; align-items: center; }
 .row input { flex: 1; }
 .obj { border-top: 1px solid var(--hair); }
