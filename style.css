@@ -173,12 +173,15 @@ header.site {
 }
 body.ready .stage-tilt { opacity: 1; }
 .stage-wrap.switching .stage-tilt { opacity: 0; transform: translateY(24px) rotateX(6deg); }
-.stage { display: block; width: 100%; height: auto; touch-action: none; user-select: none; -webkit-user-select: none; }
+.stage { display: block; width: 100%; height: auto; touch-action: pan-y pinch-zoom; user-select: none; -webkit-user-select: none; }
+.node { touch-action: none; }
 .hint { font-size: 14px; color: var(--fg-44); margin-top: 10px; }
 
 /* text inside the diagram */
 .stage text { font-family: var(--display); fill: var(--fg); letter-spacing: -0.01em; }
 .tier-label { font-size: 17px; font-weight: 500; letter-spacing: -0.02em; text-anchor: middle; }
+.tier-label.small { font-size: 11px; }
+.tile.small text { font-size: 9.5px; }
 
 /* slabs */
 .slab-top { fill: var(--surface); stroke: var(--fg-78); stroke-width: 1; }
@@ -274,7 +277,9 @@ body.ready .stage-tilt { opacity: 1; }
 .hit { fill: transparent; stroke: none; }
 
 /* nodes, links and tiles rise into place when a template loads */
-.stage.entering .node, .stage.entering .tile, .stage.entering .edge, .stage.entering .card {
+/* The node group carries its position in a transform attribute, which a CSS
+   transform would override, so the animation runs on the inner body instead. */
+.stage.entering .node .body, .stage.entering .tile, .stage.entering .edge, .stage.entering .card {
   animation: rise var(--t-reveal) both; animation-delay: calc(var(--i, 0) * 45ms);
 }
 .stage.entering .edge { animation-delay: calc(var(--i, 0) * 45ms + 220ms); }
@@ -299,6 +304,28 @@ body.ready .stage-tilt { opacity: 1; }
 .stage.choreo .card .row { animation: rise var(--t-reveal) both; animation-delay: calc(60ms + var(--i, 0) * 40ms); }
 .stage.choreo .card-leader { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw var(--t-reveal) 120ms both; }
 .stage.choreo .card-leader-dot { animation: rise var(--t-reveal) 500ms both; }
+
+/* phone inspector: the property card as a panel under the stage */
+.inspector { display: none; }
+@media (max-width: 700px) {
+  .inspector.has { display: block; margin-top: 12px; padding: 16px; border: 1px solid var(--fg-12); border-radius: var(--r); background: var(--bg); box-shadow: var(--shadow); }
+  .inspector.choreo { animation: rise var(--t-reveal) both; }
+  .insp-head { display: flex; align-items: center; gap: 12px; }
+  .insp-head .obj-icon svg { width: 24px; height: 24px; }
+  .insp-head h3 { font-size: 18px; font-weight: 500; letter-spacing: -0.02em; }
+  .insp-head .meta { font-size: 13px; color: var(--fg-44); margin-top: 2px; }
+  .inspector ul { list-style: none; margin-top: 12px; border-top: 1px solid var(--hair); }
+  .inspector li { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--hair); font-size: 14px; }
+  .inspector.choreo li { animation: rise var(--t-reveal) both; animation-delay: calc(60ms + var(--i, 0) * 40ms); }
+  .inspector li span { color: var(--fg-60); }
+  .inspector li b { font-weight: 500; display: flex; align-items: center; gap: 8px; }
+  .inspector .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--fg-18); }
+  .inspector .dot-ok { background: var(--green); }
+  .inspector .dot-info { background: var(--fg-44); }
+  .inspector .dot-warn { background: var(--gold); }
+  .inspector .dot-bad { background: var(--err); }
+  .insp-auto { margin-top: 12px; font-size: 14px; font-weight: 500; color: var(--gold-ink); }
+}
 
 /* industry switcher (floating, bottom right of the stage) */
 .industry-switch { position: absolute; right: 8px; bottom: 34px; display: flex; flex-direction: column; gap: 6px; width: 190px; z-index: 5; }
@@ -417,7 +444,7 @@ footer.shell { padding-block: 64px 56px; margin-top: 40px; display: flex; justif
 
 /* ---------- motion off ---------- */
 @media (prefers-reduced-motion: reduce) {
-  .wire-dots, .disc-ring, .stage.entering *, .stage.choreo * { animation: none !important; }
+  .wire-dots, .disc-ring, .stage.entering *, .stage.choreo *, .inspector, .inspector * { animation: none !important; }
   .stage.choreo .edge.sel .edge-line, .stage.choreo .card-leader { stroke-dashoffset: 0; }
   .tilt, .tilt > *, .stage-tilt, .node .body { transform: none !important; transition: none; }
   .depth { opacity: 1; transform: none; }
@@ -425,15 +452,31 @@ footer.shell { padding-block: 64px 56px; margin-top: 40px; display: flex; justif
 }
 
 /* ---------- responsive ---------- */
+@media (max-width: 700px) {
+  .stage-wrap.switching .stage-tilt { transform: none; }
+  .hero h1 { max-width: none; }
+  .lede { font-size: 17px; }
+  .herobtns { gap: 8px; }
+  .company-field { width: 100%; }
+  .stats { flex-wrap: wrap; gap: 12px 18px; }
+  section.shell { padding-block: 32px; }
+  .sechd { flex-wrap: wrap; }
+  .drawer-body { padding: 8px 16px 40px; }
+  .obj-head { grid-template-columns: 22px 22px 1fr 26px; gap: 6px 8px; }
+  .obj-head .f-icon, .obj-head .f-auto { grid-column: 3 / span 1; }
+  .prop { grid-template-columns: 1fr 1fr; }
+  .prop .p-status { grid-column: 1; }
+  .lnk { grid-template-columns: 1fr 1fr; }
+  .lnk .l-verb { grid-column: 1 / span 2; }
+}
 @media (max-width: 900px) {
   .hnav { display: none; }
   .hd { gap: 14px; }
   .mark, .hsecondary { white-space: nowrap; }
   .hsecondary { margin-left: auto; }
   .hero { padding-block: 40px 8px; }
-  .stage-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; perspective: none; }
+  .stage-wrap { perspective: none; }
   .stage-tilt { transform: none !important; }
-  .stage { min-width: 1000px; }
   .industry-switch { position: static; margin: 12px 0 0; width: 100%; max-width: 260px; }
   .obj-head { grid-template-columns: 22px 22px 1fr 26px; }
   .obj-head .f-icon, .obj-head .f-auto { grid-column: 3 / span 1; }

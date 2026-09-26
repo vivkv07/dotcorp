@@ -8,10 +8,28 @@
   "use strict";
 
   /* ---------------------------------------------------------------- geometry */
-  const VB = { w: 1500, h: 1000 };
-  // Ontology slab top face (a trapezoid seen in perspective).
-  const SLAB = { tl: [280, 390], tr: [1220, 390], br: [1330, 690], bl: [170, 690], depth: 20 };
-  const PLANE = { u0: 0.13, u1: 0.95, v0: 0.18, v1: 0.86 };
+  // Two geometries: landscape (the three tiers side by side, objects flowing
+  // left to right) and portrait for phones (tiers stacked, objects flowing top
+  // to bottom). SLAB is the ontology's top face, a trapezoid in perspective;
+  // PLANE is the part of it objects may occupy.
+  const LANDSCAPE = {
+    VB: { w: 1500, h: 1000 },
+    SLAB: { tl: [280, 390], tr: [1220, 390], br: [1330, 690], bl: [170, 690], depth: 20 },
+    PLANE: { u0: 0.13, u1: 0.95, v0: 0.18, v1: 0.86 },
+  };
+  const PORTRAIT = {
+    VB: { w: 460, h: 1330 },
+    SLAB: { tl: [44, 205], tr: [416, 205], br: [452, 1005], bl: [8, 1005], depth: 14 },
+    PLANE: { u0: 0.16, u1: 0.84, v0: 0.09, v1: 0.9 },
+  };
+  let VB = LANDSCAPE.VB, SLAB = LANDSCAPE.SLAB, PLANE = LANDSCAPE.PLANE, portrait = false;
+  const portraitQuery = matchMedia("(max-width: 700px)");
+  function setMode() {
+    portrait = portraitQuery.matches;
+    const g = portrait ? PORTRAIT : LANDSCAPE;
+    VB = g.VB; SLAB = g.SLAB; PLANE = g.PLANE;
+    document.getElementById("stage").setAttribute("viewBox", `0 0 ${VB.w} ${VB.h}`);
+  }
   const TOP_X = [330, 750, 1170];
   const BOTTOM_X = [330, 750, 1170];
   const TOP_LABELS = ["Analytics & Workflows", "Automations", "Products & SDKs"];
@@ -152,21 +170,26 @@
       col.forEach((id, i) => row.set(id, col.length === 1 ? 0.5 : i / (col.length - 1)));
     });
 
+    // Ranks run along axis A (u in landscape, v in portrait); members of a rank
+    // spread along axis B. The spread gets a small alternating shift per rank so
+    // neighbouring ranks' labels do not line up.
+    const [A0, A1, B0, B1] = portrait ? [PLANE.v0, PLANE.v1, PLANE.u0, PLANE.u1] : [PLANE.u0, PLANE.u1, PLANE.v0, PLANE.v1];
     const layout = {};
     cols.forEach((col, c) => {
-      const u = lerp(PLANE.u0, PLANE.u1, cols.length === 1 ? 0.5 : c / (cols.length - 1));
-      const pitch = cols.length > 1 ? (PLANE.u1 - PLANE.u0) / (cols.length - 1) : 0.3;
+      const a = lerp(A0, A1, cols.length === 1 ? 0.5 : c / (cols.length - 1));
+      const pitch = cols.length > 1 ? (A1 - A0) / (cols.length - 1) : 0.3;
       col.forEach((id, i) => {
-        const shift = c % 2 ? 0.05 : -0.05;
-        let v, uu = u;
-        if (col.length === 1) v = 0.5 + shift * 4;
-        else if (col.length === 2) v = lerp(PLANE.v0 + 0.1, PLANE.v1 - 0.1, i) + shift;
-        else if (col.length === 3) v = lerp(PLANE.v0, PLANE.v1, i / 2) + (i === 1 ? shift : 0);
-        else { // crowded column: zig-zag sideways so discs and labels stay readable
-          v = lerp(PLANE.v0 - 0.02, PLANE.v1 + 0.04, i / (col.length - 1));
-          uu = u + (i % 2 ? 0.3 : -0.3) * pitch;
+        const shift = (c % 2 ? 0.05 : -0.05) * (portrait ? 1.6 : 1);
+        let b, aa = a;
+        if (col.length === 1) b = 0.5 + shift * (portrait ? 2.5 : 4);
+        else if (col.length === 2) b = lerp(B0 + 0.1, B1 - 0.1, i) + shift;
+        else if (col.length === 3) b = lerp(B0, B1, i / 2) + (i === 1 ? shift : 0);
+        else { // crowded rank: zig-zag along the rank axis so discs and labels stay readable
+          b = lerp(B0 - 0.02, B1 + 0.04, i / (col.length - 1));
+          aa = a + (i % 2 ? 0.3 : -0.3) * pitch;
         }
-        layout[id] = { u: clamp(uu, 0.08, 0.97), v: clamp(v, PLANE.v0 - 0.04, PLANE.v1 + 0.04) };
+        const A = clamp(aa, A0 - 0.05, A1 + 0.03), B = clamp(b, B0 - 0.04, B1 + 0.04);
+        layout[id] = portrait ? { u: B, v: A } : { u: A, v: B };
       });
     });
     state.objects.forEach((o) => {
@@ -240,7 +263,44 @@
       <path class="mon-stand" d="M${x + w / 2 - 10},${y + h + 8} h20 M${x + w / 2},${y + h} v8"/></g>`;
   }
 
+  const P_X = [80, 230, 380]; // portrait: the three platforms and the three tiers
+  function topTierPortrait() {
+    let out = "";
+    const kinds = ["line", "kanban", "tree"];
+    const starts = [], ends = [];
+    P_X.forEach((cx, k) => {
+      out += `<text class="tier-label small" x="${cx}" y="22">${esc(TOP_LABELS[k])}</text>`;
+      out += slab(cx, 122, 116, 152, 132, 8, "tier-slab");
+      out += monitor(cx - 40, 44, 80, 58, kinds[k]);
+      for (let i = 0; i < 4; i++) {
+        ends.push([cx - 36 + i * 24, 160]);
+        starts.push([lerp(SLAB.tl[0] + 24, SLAB.tr[0] - 24, (k * 4 + i + 0.5) / 12), SLAB.tl[1]]);
+      }
+    });
+    return out + `<g class="wires">${wires(starts, ends)}</g>`;
+  }
+  function bottomTierPortrait() {
+    let out = "";
+    const starts = [], ends = [];
+    const top = SLAB.bl[1] + 50;
+    P_X.forEach((cx, k) => {
+      out += slab(cx, top, 128, top + 224, 144, 10, "tier-slab");
+      const tiles = state.sources[TIER_KEYS[k]] || [];
+      tiles.slice(0, 6).forEach((t, i) => {
+        const x = cx - 58, y = top + 10 + i * 34;
+        out += `<g class="tile small ${TIER_CLASS[k]}" data-tier="${TIER_KEYS[k]}" data-i="${i}" style="--i:${k * 6 + i}"><rect x="${x}" y="${y}" width="116" height="28" rx="4"/><text x="${cx}" y="${y + 18}">${esc(t)}</text></g>`;
+      });
+      out += `<text class="tier-label small" x="${cx}" y="${top + 258}">${esc(BOTTOM_LABELS[k])}</text>`;
+      for (let i = 0; i < 4; i++) {
+        starts.push([lerp(SLAB.bl[0] + 30, SLAB.br[0] - 30, (k * 4 + i + 0.5) / 12), SLAB.bl[1] + SLAB.depth]);
+        ends.push([cx - 36 + i * 24, top]);
+      }
+    });
+    return `<g class="wires">${wires(starts, ends)}</g>` + out;
+  }
+
   function topTier() {
+    if (portrait) return topTierPortrait();
     let out = "";
     TOP_X.forEach((cx, k) => {
       out += `<text class="tier-label" x="${cx}" y="102">${esc(TOP_LABELS[k])}</text>`;
@@ -264,6 +324,7 @@
   }
 
   function bottomTier() {
+    if (portrait) return bottomTierPortrait();
     let out = "";
     const starts = [], ends = [];
     BOTTOM_X.forEach((cx, k) => {
@@ -323,7 +384,7 @@
     const hits = (x, y, w, h) => blocks.some((b) => Math.abs(b.x - x) < (b.w + w) / 2 + 2 && Math.abs(b.y - y) < (b.h + h) / 2 + 2);
     state.objects.filter((o) => o.automation).forEach((o) => {
       const w = textW(o.automation + " →", 10) + 18, h = 19;
-      const cands = [[0, -58], [0, 54], [-60, -46], [60, -46], [0, -58]];
+      const cands = portrait ? [[0, -58], [0, 54], [0, -58]] : [[0, -58], [0, 54], [-60, -46], [60, -46], [0, -58]];
       const own = blocks.find((b) => b.x === o._x && b.y === o._y + 9);
       const spot = cands.find(([dx, dy]) => { own.h = 0; const ok = !hits(o._x + dx, o._y + dy, w, h); own.h = 64; return ok; }) || cands[0];
       actionSpot.set(o.id, spot);
@@ -405,9 +466,21 @@
     }).join("");
   }
 
-  function cardMarkup() {
+  function inspectorHTML() {
     const o = state.objects.find((x) => x.id === state.selected);
     if (!o) return "";
+    const linkCount = state.links.filter((l) => l.source === o.id || l.target === o.id).length;
+    const rows = o.props || [];
+    return `<div class="insp-head"><span class="obj-icon"><svg viewBox="0 0 24 24">${ICONS[o.icon] || ICONS.box}</svg></span>
+        <div><h3>${esc(o.name)}</h3><p class="meta">Object type · ${linkCount} link${linkCount === 1 ? "" : "s"} · ${rows.length} propert${rows.length === 1 ? "y" : "ies"}</p></div></div>
+      <ul>${rows.map((p, i) => `<li style="--i:${i}"><span>${esc(p.label)}</span><b><i class="dot dot-${esc(p.status || "neutral")}"></i>${esc(p.value)}</b></li>`).join("")}
+      ${rows.length ? "" : "<li><span>No properties yet. Add some in Customize.</span></li>"}</ul>
+      ${o.automation ? `<p class="insp-auto">⚡ ${esc(o.automation)}</p>` : ""}`;
+  }
+
+  function cardMarkup() {
+    const o = state.objects.find((x) => x.id === state.selected);
+    if (!o || portrait) return "";
     const x = 28, y = 404, w = 244, rowH = 22;
     const rows = o.props || [];
     const linkCount = state.links.filter((l) => l.source === o.id || l.target === o.id).length;
@@ -437,7 +510,11 @@
   }
 
   function render() {
+    setMode();
     computeLayout();
+    const insp = $("#inspector");
+    insp.innerHTML = inspectorHTML();
+    insp.classList.toggle("has", !!state.selected);
     svg.innerHTML = `
       <defs>
         <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"/></marker>
@@ -464,6 +541,8 @@
     $(".cards", svg).innerHTML = cardMarkup();
     applyHover();
   }
+  // Re-render when the viewport crosses the phone breakpoint.
+  portraitQuery.addEventListener("change", () => { if (state) renderFresh(); });
 
   function applyHover() {
     const id = hover;
@@ -531,10 +610,10 @@
   // animations for one render, so edits in the drawer do not replay them.
   function select(id) {
     state.selected = id;
-    svg.classList.add("choreo");
+    svg.classList.add("choreo"); $("#inspector").classList.add("choreo");
     render();
     clearTimeout(select._t);
-    select._t = setTimeout(() => svg.classList.remove("choreo"), 1400);
+    select._t = setTimeout(() => { svg.classList.remove("choreo"); $("#inspector").classList.remove("choreo"); }, 1400);
   }
   function renderFresh() {
     svg.classList.add("entering");
