@@ -31,6 +31,12 @@ colour is a token, so the dark scheme is the same page with the tokens swapped. 
 same system: the stage tilts toward the cursor, sections rise into view, and selecting an object
 blooms its ring, draws its links, and slides in its property card.
 
+## Releasing a change
+
+GitHub Pages caches files for ten minutes, so after changing `style.css`, `app.js` or `data.js`
+bump the `?v=` number on their tags in `index.html`. That makes every browser fetch the new
+files on the next visit instead of showing a stale mix.
+
 ## Running
 
 It is a static site with no build step: open `index.html`, or serve the folder
