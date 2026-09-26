@@ -1,90 +1,139 @@
 <!DOCTYPE html>
-<html >
-  <head>
-    <meta charset="UTF-8">
-    <title>Remix Challenge</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-<link  rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto" />
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ontology Studio</title>
+  <meta name="description" content="Visualize what your company's ontology could look like: objects, links, automations, and the data, logic and systems that power them. Pick an industry, customize, share.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231f2328' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Ccircle cx='12' cy='12' r='3' fill='%234f7df3' stroke='none'/%3E%3C/svg%3E">
+</head>
+<body>
 
-    
-    <!-- <link rel="stylesheet" href="css/normalize.css"> -->
-
-    
-        <link rel="stylesheet" href="style.css">
-
-    
-    
-    
-  </head>
-
-  <body>
-
-    <!-- this is the markup. you can change the details (your own name, your own avatar etc.) but don’t change the basic structure! -->
-
-<aside class="profile-card">
-
-    <header>
-    
-        <!-- here’s the avatar -->
-        <a href="http://victory-design.ru/">
-            <img src="http://victory-design.ru/sandbox/codepen/profile_card/avatar.svg" />
-        </a>
-        
-        <!-- the username -->
-        <h1>DOT CORP</h1>
-        
-        <!-- and role or location -->
-        <h2>The Next Conglomerate of India!</h2>
-    
-    </header>
-
-    <!-- bit of a bio; who are you? -->
-    <div class="profile-bio">
-    
-        <p>Even when everything is perfect, you can always make it better. Break barriers in your head, create something crazy and don't forget that world is all yours</p>
-    
+  <header class="topbar">
+    <a class="brand" href="#">
+      <span class="brand-mark"></span>
+      <span class="brand-name">DOT CORP</span>
+      <span class="brand-sub">Ontology Studio</span>
+    </a>
+    <div class="topbar-actions">
+      <label class="company-field">
+        <span>Company</span>
+        <input id="company" type="text" placeholder="Your company name" maxlength="40" autocomplete="organization">
+      </label>
+      <button id="customize" class="btn btn-primary">Customize</button>
+      <button id="share" class="btn">Share link</button>
+      <div class="menu">
+        <button class="btn" aria-haspopup="true">Export ▾</button>
+        <div class="menu-items">
+          <button id="export-png">PNG image</button>
+          <button id="export-svg">SVG vector</button>
+          <button id="export-json">JSON</button>
+          <label class="file-btn">Import JSON<input id="import-json" type="file" accept="application/json,.json"></label>
+        </div>
+      </div>
     </div>
+  </header>
 
-    <!-- some social links to show off -->
-    <ul class="profile-social-links">
-        
-        <!-- twitter - el clásico  -->
-        <li>
-            <a href="https://www.facebook.com/v1ctory">
-                <svg viewBox="0 0 24 24">
-                    <path fill="#3b5998" d="M17,2V2H17V6H15C14.31,6 14,6.81 14,7.5V10H14L17,10V14H14V22H10V14H7V10H10V6A4,4 0 0,1 14,2H17Z" />
-                </svg>
-            </a>
-        </li>
-        
-        <!-- envato – use this one to link to your marketplace profile -->
-        <li>
-            <a href="http://themeforest.net/user/Victory-Design">
-                <svg viewBox="0 0 24 24">
-                    <path fill="#82B541" d="M18.334,1.909c-0.604-0.327-2.313-0.125-4.375,0.503c-3.621,2.464-6.664,6.11-6.89,11.971c-0.05,0.148-0.402-0.025-0.478-0.053c-0.981-1.859-1.358-3.846-0.554-6.688C6.189,7.39,5.686,7.089,5.611,7.165C5.435,7.34,4.681,8.145,4.178,9c-2.464,4.249-0.855,9.733,3.445,12.122c4.299,2.389,9.733,0.855,12.12-3.445C22.533,12.695,19.969,2.814,18.334,1.909z"/>
-                </svg>
-            </a>
-        </li>
-        
-        <!-- codepen - your codepen profile-->
-        <li>
-            <a href="https://codepen.io/VictoryDesign/">
-                <svg viewBox="0 0 24 24">
-                    <path fill="#000000" d="M19.45,13.29L17.5,12L19.45,10.71M12.77,18.78V15.17L16.13,12.93L18.83,14.74M12,13.83L9.26,12L12,10.17L14.74,12M11.23,18.78L5.17,14.74L7.87,12.93L11.23,15.17M4.55,10.71L6.5,12L4.55,13.29M11.23,5.22V8.83L7.87,11.07L5.17,9.26M12.77,5.22L18.83,9.26L16.13,11.07L12.77,8.83M21,9.16C21,9.15 21,9.13 21,9.12C21,9.1 21,9.08 20.97,9.06C20.97,9.05 20.97,9.03 20.96,9C20.96,9 20.95,9 20.94,8.96C20.94,8.95 20.93,8.94 20.92,8.93C20.92,8.91 20.91,8.89 20.9,8.88C20.89,8.86 20.88,8.85 20.88,8.84C20.87,8.82 20.85,8.81 20.84,8.79C20.83,8.78 20.83,8.77 20.82,8.76A0.04,0.04 0 0,0 20.78,8.72C20.77,8.71 20.76,8.7 20.75,8.69C20.73,8.67 20.72,8.66 20.7,8.65C20.69,8.64 20.68,8.63 20.67,8.62C20.66,8.62 20.66,8.62 20.66,8.61L12.43,3.13C12.17,2.96 11.83,2.96 11.57,3.13L3.34,8.61C3.34,8.62 3.34,8.62 3.33,8.62C3.32,8.63 3.31,8.64 3.3,8.65C3.28,8.66 3.27,8.67 3.25,8.69C3.24,8.7 3.23,8.71 3.22,8.72C3.21,8.73 3.2,8.74 3.18,8.76C3.17,8.77 3.17,8.78 3.16,8.79C3.15,8.81 3.13,8.82 3.12,8.84C3.12,8.85 3.11,8.86 3.1,8.88C3.09,8.89 3.08,8.91 3.08,8.93C3.07,8.94 3.06,8.95 3.06,8.96C3.05,9 3.05,9 3.04,9C3.03,9.03 3.03,9.05 3.03,9.06C3,9.08 3,9.1 3,9.12C3,9.13 3,9.15 3,9.16C3,9.19 3,9.22 3,9.26V14.74C3,14.78 3,14.81 3,14.84C3,14.85 3,14.87 3,14.88C3,14.9 3,14.92 3.03,14.94C3.03,14.95 3.03,14.97 3.04,15C3.05,15 3.05,15 3.06,15.04C3.06,15.05 3.07,15.06 3.08,15.07C3.08,15.09 3.09,15.11 3.1,15.12C3.11,15.14 3.12,15.15 3.12,15.16C3.13,15.18 3.15,15.19 3.16,15.21C3.17,15.22 3.17,15.23 3.18,15.24C3.2,15.25 3.21,15.27 3.22,15.28C3.23,15.29 3.24,15.3 3.25,15.31C3.27,15.33 3.28,15.34 3.3,15.35C3.31,15.36 3.32,15.37 3.33,15.38C3.34,15.38 3.34,15.38 3.34,15.39L11.57,20.87C11.7,20.96 11.85,21 12,21C12.15,21 12.3,20.96 12.43,20.87L20.66,15.39C20.66,15.38 20.66,15.38 20.67,15.38C20.68,15.37 20.69,15.36 20.7,15.35C20.72,15.34 20.73,15.33 20.75,15.31C20.76,15.3 20.77,15.29 20.78,15.28C20.79,15.27 20.8,15.25 20.82,15.24C20.83,15.23 20.83,15.22 20.84,15.21C20.85,15.19 20.87,15.18 20.88,15.16C20.88,15.15 20.89,15.14 20.9,15.12C20.91,15.11 20.92,15.09 20.92,15.07C20.93,15.06 20.94,15.05 20.94,15.04C20.95,15 20.96,15 20.96,15C20.97,14.97 20.97,14.95 20.97,14.94C21,14.92 21,14.9 21,14.88C21,14.87 21,14.85 21,14.84C21,14.81 21,14.78 21,14.74V9.26C21,9.22 21,9.19 21,9.16Z" />
-                </svg>
-            </a>
-        </li>
-        
-        <!-- add or remove social profiles as you see fit -->
-    
-    </ul>
+  <main>
+    <section class="hero">
+      <p class="eyebrow">A shared model of the business</p>
+      <h1>See what <em id="hero-company">your company's</em> ontology could look like.</h1>
+      <p class="lede">
+        An ontology is the operational layer that ties your data, logic and systems together into the objects
+        your teams actually talk about: plants, orders, customers, claims. Pick an industry, then click any object,
+        drag it around, rename tiles, or open <strong>Customize</strong> to make it yours.
+      </p>
+      <ul class="stats">
+        <li><b id="stat-objects">0</b> object types</li>
+        <li><b id="stat-links">0</b> links</li>
+        <li><b id="stat-autos">0</b> automations</li>
+      </ul>
+    </section>
 
-</aside>
-<!-- that’s all folks! -->
-    
-    
-    
-    
-    
-  </body>
+    <section id="stage-wrap" class="stage-wrap">
+      <svg id="stage" class="stage" viewBox="0 0 1500 1000" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Ontology diagram"></svg>
+
+      <div class="industry-switch">
+        <div class="arrows">
+          <button id="prev-industry" class="arrow" title="Previous industry (←)">←</button>
+          <button id="next-industry" class="arrow" title="Next industry (→)">→</button>
+        </div>
+        <button id="industry-btn" class="industry-pill">
+          <span id="industry-icon" class="industry-icon"></span>
+          <span id="industry-name">Manufacturing</span>
+        </button>
+        <div id="industry-menu" class="industry-menu"></div>
+      </div>
+      <p class="hint">Click an object to inspect it · drag to rearrange · click a tile to rename</p>
+    </section>
+
+    <section class="explainer">
+      <div>
+        <h3>Objects, not tables</h3>
+        <p>Each disc is an object type with real properties, sourced from the systems below and kept in sync.</p>
+      </div>
+      <div>
+        <h3>Links carry meaning</h3>
+        <p>Verbs like <i>supplies</i>, <i>prepares</i> and <i>ships</i> let analysts and models traverse the business.</p>
+      </div>
+      <div>
+        <h3>Actions close the loop</h3>
+        <p>Automations write decisions back into systems of action, so insight becomes operation.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>DOT CORP · Ontology Studio</span>
+    <span>Everything stays in your browser. Share links carry the whole model.</span>
+  </footer>
+
+  <div id="backdrop" class="backdrop"></div>
+  <aside id="drawer" class="drawer" aria-label="Customize ontology">
+    <div class="drawer-head">
+      <h2>Customize</h2>
+      <button id="close-drawer" class="icon-btn" title="Close (Esc)">×</button>
+    </div>
+    <div class="drawer-body">
+      <section>
+        <h3>Template</h3>
+        <div class="row">
+          <select id="drawer-industry"></select>
+          <button id="reset-template" class="btn btn-small">Reset</button>
+          <button id="relayout" class="btn btn-small" title="Forget dragged positions">Re-layout</button>
+        </div>
+      </section>
+      <section>
+        <h3>Object types</h3>
+        <div id="objects-list" class="objects-list"></div>
+        <div class="row">
+          <input id="new-object" type="text" placeholder="New object type, e.g. Contract">
+          <button id="add-object" class="btn btn-small">Add</button>
+        </div>
+      </section>
+      <section>
+        <h3>Links</h3>
+        <div id="links-list" class="links-list"></div>
+        <button id="add-link" class="btn btn-small">+ Add link</button>
+      </section>
+      <section>
+        <h3>Sources <small>(one per line, up to six)</small></h3>
+        <div class="sources-grid">
+          <label>Data sources<textarea id="src-data" class="src" data-tier="data" rows="6"></textarea></label>
+          <label>Logic sources<textarea id="src-logic" class="src" data-tier="logic" rows="6"></textarea></label>
+          <label>Systems of action<textarea id="src-action" class="src" data-tier="action" rows="6"></textarea></label>
+        </div>
+      </section>
+    </div>
+  </aside>
+
+  <div id="toast" class="toast" role="status"></div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
 </html>
