@@ -18,7 +18,7 @@
   const BOTTOM_LABELS = ["Data Sources", "Logic Sources", "Systems of Action"];
   const TIER_KEYS = ["data", "logic", "action"];
   const TIER_CLASS = ["tile-data", "tile-logic", "tile-action"];
-  const STATUS_COLOR = { ok: "#22a06b", warn: "#f0a020", bad: "#e5484d", info: "#4f7df3", neutral: "#9aa0ab" };
+  const STATUSES = ["ok", "warn", "bad", "info", "neutral"];
 
   const lerp = (a, b, t) => a + (b - a) * t;
   function project(u, v) {
@@ -178,11 +178,12 @@
 
   /* ------------------------------------------------------------- rendering */
   function textW(text, size, weight = "400") {
-    measureCtx.font = `${weight} ${size}px "Space Mono", "SFMono-Regular", Menlo, monospace`;
+    measureCtx.font = `${weight} ${size}px Switzer, -apple-system, "Helvetica Neue", Arial, sans-serif`;
     return measureCtx.measureText(text).width;
   }
+  const HEAVY = /pill-object|pill-action|pill-auto|pill-outline/;
   function pill(x, y, text, cls, size = 11, padX = 9, h = 20, anchor = "middle", extra = "") {
-    const w = textW(text, size) + padX * 2;
+    const w = textW(text, size, HEAVY.test(cls) ? "500" : "400") + padX * 2;
     const x0 = anchor === "middle" ? x - w / 2 : anchor === "start" ? x : x - w;
     return `<g class="pill ${cls}" ${extra}><rect x="${x0.toFixed(1)}" y="${(y - h / 2).toFixed(1)}" width="${w.toFixed(1)}" height="${h}" rx="${h / 2}"/><text x="${(x0 + w / 2).toFixed(1)}" y="${(y + size * 0.36).toFixed(1)}" font-size="${size}">${esc(text)}</text></g>`;
   }
@@ -242,7 +243,7 @@
   function topTier() {
     let out = "";
     TOP_X.forEach((cx, k) => {
-      out += `<text class="tier-label" x="${cx}" y="102">${esc(TOP_LABELS[k]).toUpperCase()}</text>`;
+      out += `<text class="tier-label" x="${cx}" y="102">${esc(TOP_LABELS[k])}</text>`;
       out += slab(cx, 250, 300, 300, 350, 12, "tier-slab");
       if (k === 0) out += monitor(cx - 120, 132, 105, 78, "line") + monitor(cx + 10, 148, 110, 80, "map") + monitor(cx - 60, 190, 100, 62, "bars");
       if (k === 1) out += monitor(cx - 115, 150, 95, 75, "list") + monitor(cx - 20, 132, 110, 84, "kanban") + monitor(cx + 45, 178, 70, 60, "line");
@@ -271,9 +272,9 @@
       tiles.slice(0, 6).forEach((t, i) => {
         const col = i % 2, r = Math.floor(i / 2);
         const x = cx - 150 + col * 152, y = 753 + r * 46;
-        out += `<g class="tile ${TIER_CLASS[k]}" data-tier="${TIER_KEYS[k]}" data-i="${i}"><rect x="${x}" y="${y}" width="148" height="38" rx="3"/><text x="${x + 74}" y="${y + 23}" font-size="11">${esc(t).toUpperCase()}</text></g>`;
+        out += `<g class="tile ${TIER_CLASS[k]}" data-tier="${TIER_KEYS[k]}" data-i="${i}" style="--i:${k * 6 + i}"><rect x="${x}" y="${y}" width="148" height="38" rx="4"/><text x="${x + 74}" y="${y + 23}">${esc(t)}</text></g>`;
       });
-      out += `<text class="tier-label" x="${cx}" y="962">${esc(BOTTOM_LABELS[k]).toUpperCase()}</text>`;
+      out += `<text class="tier-label" x="${cx}" y="962">${esc(BOTTOM_LABELS[k])}</text>`;
       for (let i = 0; i < 8; i++) {
         starts.push([lerp(SLAB.bl[0] + 40, SLAB.br[0] - 40, (k * 8 + i + 0.5) / 24), SLAB.bl[1] + SLAB.depth]);
         ends.push([cx - 112 + i * 32, 740]);
@@ -292,9 +293,9 @@
       <g class="grid">${[0.2, 0.4, 0.6, 0.8].map((v) => { const a = project(0, v), b = project(1, v); return `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}"/>`; }).join("")}
       ${[0.2, 0.4, 0.6, 0.8].map((u) => { const a = project(u, 0), b = project(u, 1); return `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}"/>`; }).join("")}</g>
     </g>
-    <g class="ontology-tag"><rect x="${S.bl[0] + 10}" y="${S.bl[1] - 4}" width="${textW("ONTOLOGY · " + (state.company || "YOUR COMPANY").toUpperCase(), 11) + 40}" height="22" rx="2"/>
+    <g class="ontology-tag"><rect x="${S.bl[0] + 10}" y="${S.bl[1] - 4}" width="${textW("Ontology · " + (state.company || "Your company"), 11, "500") + 40}" height="22" rx="4"/>
       <circle cx="${S.bl[0] + 22}" cy="${S.bl[1] + 7}" r="4"/><circle cx="${S.bl[0] + 22}" cy="${S.bl[1] + 7}" r="1.5" class="dot"/>
-      <text x="${S.bl[0] + 32}" y="${S.bl[1] + 11}" font-size="11">ONTOLOGY · ${esc((state.company || "Your Company").toUpperCase())}</text></g>`;
+      <text x="${S.bl[0] + 32}" y="${S.bl[1] + 11}">Ontology · ${esc(state.company || "Your company")}</text></g>`;
   }
 
   // Each automated object puts its purple "Automation" pill on one of its links
@@ -373,15 +374,16 @@
       }
       const verb = l.verb || "relates to";
       const [mx, my] = place(at, perp, verb, 10, 8, 18, [0.5, 0.6, 0.4, 0.68, 0.32, 0.75, 0.25], true);
-      return `<g class="edge" data-i="${i}" data-s="${esc(a.id)}" data-t="${esc(b.id)}">
-        <line class="edge-line" x1="${a._x.toFixed(1)}" y1="${a._y.toFixed(1)}" x2="${ex.toFixed(1)}" y2="${ey.toFixed(1)}" marker-end="url(#arrow)"/>
+      const sel = a.id === state.selected || b.id === state.selected ? " sel" : "";
+      return `<g class="edge${sel}" data-i="${i}" data-s="${esc(a.id)}" data-t="${esc(b.id)}" style="--i:${i}">
+        <line class="edge-line" pathLength="1" x1="${a._x.toFixed(1)}" y1="${a._y.toFixed(1)}" x2="${ex.toFixed(1)}" y2="${ey.toFixed(1)}" marker-end="url(#arrow)"/>
         ${pill(mx, my, verb, "pill-verb", 10, 8, 18)}${extra}
       </g>`;
     }).join("");
   }
 
   function nodesMarkup() {
-    return state.objects.map((o) => {
+    return state.objects.map((o, k) => {
       const sel = o.id === state.selected ? " selected" : "";
       let auto = "";
       if (o.automation) {
@@ -389,13 +391,15 @@
         auto = pill(dx, dy, o.automation + " →", "pill-action", 10, 9, 19);
         if (autoUnderNode.has(o.id)) auto += pill(0, dy === 54 ? 74 : 47, "⚡ Automation", "pill-auto", 8.5, 7, 15);
       }
-      return `<g class="node${sel}" data-id="${esc(o.id)}" transform="translate(${o._x.toFixed(1)} ${o._y.toFixed(1)})">
-        <ellipse class="disc-shadow" cx="0" cy="6" rx="38" ry="19"/>
-        <ellipse class="disc" cx="0" cy="0" rx="38" ry="19"/>
-        <ellipse class="disc-ring" cx="0" cy="0" rx="44" ry="23"/>
-        ${icon(o.icon, 0, -20, 30)}
-        ${pill(0, 27, o.name, "pill-object", 11, 10, 21)}
-        ${auto}
+      return `<g class="node${sel}" data-id="${esc(o.id)}" transform="translate(${o._x.toFixed(1)} ${o._y.toFixed(1)})" style="--i:${k}">
+        <g class="body">
+          <ellipse class="disc-shadow" cx="0" cy="6" rx="38" ry="19"/>
+          <ellipse class="disc" cx="0" cy="0" rx="38" ry="19"/>
+          <ellipse class="disc-ring" cx="0" cy="0" rx="46" ry="24"/>
+          ${icon(o.icon, 0, -20, 30)}
+          ${pill(0, 27, o.name, "pill-object", 11, 10, 21)}
+          ${auto}
+        </g>
         <ellipse class="hit" cx="0" cy="0" rx="46" ry="30"/>
       </g>`;
     }).join("");
@@ -404,23 +408,31 @@
   function cardMarkup() {
     const o = state.objects.find((x) => x.id === state.selected);
     if (!o) return "";
-    const x = 28, y = 410, w = 240, rowH = 21;
+    const x = 28, y = 404, w = 244, rowH = 22;
     const rows = o.props || [];
-    const h = 46 + rows.length * rowH + 10;
-    let out = `<g class="card"><rect class="card-bg" x="${x}" y="${y}" width="${w}" height="${h}" rx="3"/>
-      <text class="card-title" x="${x + 14}" y="${y + 24}" font-size="12">${esc(o.name.toUpperCase())} OBJECT</text>
-      <line class="card-rule" x1="${x + 14}" y1="${y + 34}" x2="${x + w - 14}" y2="${y + 34}"/>`;
+    const linkCount = state.links.filter((l) => l.source === o.id || l.target === o.id).length;
+    const h = 64 + rows.length * rowH + (o.automation ? 30 : 0) + 8;
+    let out = `<g class="card"><rect class="card-bg" x="${x}" y="${y}" width="${w}" height="${h}" rx="6"/>
+      <text class="card-title" x="${x + 16}" y="${y + 26}">${esc(o.name)}</text>
+      <text class="card-meta" x="${x + 16}" y="${y + 42}">Object type · ${linkCount} link${linkCount === 1 ? "" : "s"} · ${rows.length} propert${rows.length === 1 ? "y" : "ies"}</text>
+      <line class="card-rule" x1="${x + 16}" y1="${y + 52}" x2="${x + w - 16}" y2="${y + 52}"/>`;
     rows.forEach((p, i) => {
-      const ry = y + 52 + i * rowH;
-      out += `<text class="card-label" x="${x + 14}" y="${ry}" font-size="10">${esc(p.label)}</text>
-        <circle cx="${x + w - 14 - textW(p.value, 10) - 10}" cy="${ry - 3.5}" r="3" fill="${STATUS_COLOR[p.status] || STATUS_COLOR.neutral}"/>
-        <text class="card-value" x="${x + w - 14}" y="${ry}" font-size="10" text-anchor="end">${esc(p.value)}</text>`;
+      const ry = y + 70 + i * rowH;
+      const vw = textW(p.value, 11, "500");
+      out += `<g class="row" style="--i:${i}"><text class="card-label" x="${x + 16}" y="${ry}">${esc(p.label)}</text>
+        <circle class="dot dot-${esc(p.status || "neutral")}" cx="${(x + w - 16 - vw - 10).toFixed(1)}" cy="${ry - 3.5}" r="3"/>
+        <text class="card-value" x="${x + w - 16}" y="${ry}" text-anchor="end">${esc(p.value)}</text></g>`;
     });
-    if (!rows.length) out += `<text class="card-label" x="${x + 14}" y="${y + 52}" font-size="10">No properties yet — add some in Customize.</text>`;
+    if (!rows.length) out += `<g class="row" style="--i:0"><text class="card-label" x="${x + 16}" y="${y + 70}">No properties yet. Add some in Customize.</text></g>`;
+    if (o.automation) {
+      const ay = y + 70 + rows.length * rowH + 4;
+      out += `<g class="row" style="--i:${rows.length}"><line class="card-rule" x1="${x + 16}" y1="${ay - 12}" x2="${x + w - 16}" y2="${ay - 12}"/>
+        <text class="card-auto" x="${x + 16}" y="${ay + 6}">⚡ ${esc(o.automation)}</text></g>`;
+    }
     // leader line to the selected node
     const nx = o._x - 40, ny = o._y;
     const sx = x + w, sy = y + Math.min(h / 2, 60);
-    out += `<path class="card-leader" d="M${sx},${sy} C${sx + 40},${sy} ${nx - 40},${ny} ${nx},${ny}"/><circle class="card-leader-dot" cx="${nx}" cy="${ny}" r="2.5"/></g>`;
+    out += `<path class="card-leader" pathLength="1" d="M${sx},${sy} C${sx + 40},${sy} ${nx - 40},${ny} ${nx},${ny}"/><circle class="card-leader-dot" cx="${nx}" cy="${ny}" r="2.5"/></g>`;
     return out;
   }
 
@@ -471,7 +483,9 @@
     $("#industry-icon").innerHTML = `<svg viewBox="0 0 24 24">${ICONS[ind.icon]}</svg>`;
     const cin = $("#company");
     if (cin.value !== state.company) cin.value = state.company;
-    $("#hero-company").textContent = state.company ? `${state.company}'s` : "your company's";
+    const em = $("#hero-company");
+    em.textContent = state.company ? `${state.company}'s` : "your company's";
+    em.classList.toggle("set", !!state.company);
     $("#stat-objects").textContent = state.objects.length;
     $("#stat-links").textContent = state.links.length;
     $("#stat-autos").textContent = state.objects.filter((o) => o.automation).length;
@@ -511,12 +525,28 @@
     o._u = u; o._v = v; [o._x, o._y] = project(u, v);
     renderPositions();
   });
+  // Selecting an object: the ring blooms, its links draw themselves, the card
+  // slides in and traces a leader back to the disc. `choreo` arms those
+  // animations for one render, so edits in the drawer do not replay them.
+  function select(id) {
+    state.selected = id;
+    svg.classList.add("choreo");
+    render();
+    clearTimeout(select._t);
+    select._t = setTimeout(() => svg.classList.remove("choreo"), 1400);
+  }
+  function renderFresh() {
+    svg.classList.add("entering");
+    render();
+    clearTimeout(renderFresh._t);
+    renderFresh._t = setTimeout(() => svg.classList.remove("entering"), 2000);
+  }
   const endDrag = (e) => {
     if (!dragging) return;
     const { id, moved } = dragging;
     dragging = null;
     $$(".node.dragging", svg).forEach((n) => n.classList.remove("dragging"));
-    if (!moved) { state.selected = id; render(); }
+    if (!moved) select(id);
     else save();
   };
   svg.addEventListener("pointerup", endDrag);
@@ -549,9 +579,9 @@
     setTimeout(() => {
       state = fromTemplate(nextKey, state.company);
       history.replaceState(null, "", location.pathname);
-      render(); renderDrawer();
       stage.classList.remove("switching");
-    }, 180);
+      renderFresh(); renderDrawer(); renderIndustryGrid();
+    }, 220);
   }
   $("#prev-industry").addEventListener("click", () => switchIndustry(-1));
   $("#next-industry").addEventListener("click", () => switchIndustry(1));
@@ -576,7 +606,7 @@
 
   const iconOptions = (cur) => Object.keys(ICONS).map((k) => `<option value="${k}"${k === cur ? " selected" : ""}>${k}</option>`).join("");
   const objOptions = (cur) => state.objects.map((o) => `<option value="${esc(o.id)}"${o.id === cur ? " selected" : ""}>${esc(o.name)}</option>`).join("");
-  const statusOptions = (cur) => Object.keys(STATUS_COLOR).map((k) => `<option value="${k}"${k === cur ? " selected" : ""}>${k}</option>`).join("");
+  const statusOptions = (cur) => STATUSES.map((k) => `<option value="${k}"${k === cur ? " selected" : ""}>${k}</option>`).join("");
 
   function renderDrawer() {
     if (!drawer.classList.contains("open")) return;
@@ -672,9 +702,8 @@
     let id = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "object";
     while (state.objects.some((o) => o.id === id)) id += "-2";
     state.objects.push({ id, name, icon: "box", props: [], automation: "" });
-    state.selected = id;
     $("#new-object").value = "";
-    render(); renderDrawer();
+    select(id); renderDrawer();
     $(`.obj[data-id="${id}"]`, drawer)?.classList.add("open");
   });
   $("#new-object").addEventListener("keydown", (e) => { if (e.key === "Enter") $("#add-object").click(); });
@@ -716,9 +745,9 @@
     clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
     clone.setAttribute("width", VB.w); clone.setAttribute("height", VB.h);
     const css = Array.from(document.styleSheets).filter((s) => { try { return s.cssRules && (s.href || "").includes("style.css") || !s.href; } catch (_) { return false; } })
-      .flatMap((s) => Array.from(s.cssRules)).map((r) => r.cssText).filter((t) => /(#stage|\.stage|\.node|\.edge|\.pill|\.slab|\.wire|\.tile|\.card|\.tier|\.mon|\.mini|\.icon|\.ontology|\.grid|\.hit|\.disc|\.auto|:root)/.test(t)).join("\n");
+      .flatMap((s) => Array.from(s.cssRules)).map((r) => r.cssText).filter((t) => /(#stage|\.stage|\.node|\.edge|\.pill |\.pill-|\.slab|\.wire|\.tile|\.card|\.tier|\.mon|\.mini|\.icon|\.ontology|\.grid line|\.hit|\.disc|\.dot-|\.row|:root|prefers-color-scheme|@keyframes)/.test(t) && !/\.stage-wrap|\.stage-tilt|\.stagesec/.test(t)).join("\n");
     const style = document.createElementNS("http://www.w3.org/2000/svg", "style");
-    style.textContent = `@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');\n${css}`;
+    style.textContent = `${css}`;
     clone.insertBefore(style, clone.firstChild);
     $$(".hit", clone).forEach((h) => h.remove());
     return new XMLSerializer().serializeToString(clone);
@@ -729,7 +758,7 @@
     const url = URL.createObjectURL(new Blob([exportSvgString()], { type: "image/svg+xml" }));
     img.onload = () => {
       const c = document.createElement("canvas"); c.width = VB.w * 2; c.height = VB.h * 2;
-      const ctx = c.getContext("2d"); ctx.fillStyle = "#f7f7f9"; ctx.fillRect(0, 0, c.width, c.height);
+      const ctx = c.getContext("2d"); ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--bg").trim() || "#fff"; ctx.fillRect(0, 0, c.width, c.height);
       ctx.drawImage(img, 0, 0, c.width, c.height);
       c.toBlob((b) => download(`${fileBase()}-ontology.png`, b), "image/png");
       URL.revokeObjectURL(url);
@@ -739,9 +768,103 @@
   });
 
   /* ---------------------------------------------------------------- boot */
+  /* ------------------------------------------------------- page motion */
+  const fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // The stage tilts toward the cursor, as a sheet lying on a desk would.
+  const tiltEl = $(".stage-tilt");
+  const wrap = $("#stage-wrap");
+  wrap.addEventListener("pointermove", (e) => {
+    if (!fine || still || dragging) return;
+    const r = wrap.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5;
+    tiltEl.style.setProperty("--ry", `${(x * 2 * 1.6).toFixed(2)}deg`);
+    tiltEl.style.setProperty("--rx", `${(-y * 2 * 1.6).toFixed(2)}deg`);
+  });
+  wrap.addEventListener("pointerleave", () => { tiltEl.style.setProperty("--rx", "0deg"); tiltEl.style.setProperty("--ry", "0deg"); });
+
+  // Generic tilt for cards (industry grid).
+  document.addEventListener("pointermove", (e) => {
+    const t = e.target.closest(".tilt");
+    if (!t || !fine || still) return;
+    const r = t.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5;
+    t.style.setProperty("--ry", `${(x * 2 * 5).toFixed(2)}deg`);
+    t.style.setProperty("--rx", `${(-y * 2 * 5).toFixed(2)}deg`);
+  });
+  document.addEventListener("pointerout", (e) => {
+    const t = e.target.closest && e.target.closest(".tilt");
+    if (t && !t.contains(e.relatedTarget)) { t.style.setProperty("--rx", "0deg"); t.style.setProperty("--ry", "0deg"); }
+  });
+
+  // Sections below the fold arrive tipped away and rise upright as they enter.
+  function scrollDepth() {
+    if (still) return;
+    const below = $$("main section.depthable").filter((s) => s.getBoundingClientRect().top > innerHeight * 0.92);
+    below.forEach((s) => s.classList.add("depth"));
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((en) => { if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); } });
+    }, { rootMargin: "0px 0px -6% 0px", threshold: 0 });
+    below.forEach((s) => io.observe(s));
+    const band = $(".band");
+    let raf = 0;
+    const parallax = () => {
+      raf = 0;
+      const r = band.getBoundingClientRect();
+      const mid = r.top + r.height / 2 - innerHeight / 2;
+      band.style.setProperty("--py", `${(clamp(mid / innerHeight, -1, 1) * 22).toFixed(1)}px`);
+    };
+    addEventListener("scroll", () => { if (!raf) raf = requestAnimationFrame(parallax); }, { passive: true });
+    parallax();
+  }
+
+  // Industry grid: one card per template, tilting toward the cursor.
+  function renderIndustryGrid() {
+    $("#industry-grid").innerHTML = INDUSTRY_ORDER.map((k) => {
+      const t = INDUSTRIES[k];
+      const autos = t.objects.filter((o) => o.automation).length;
+      return `<button type="button" class="icard tilt" data-k="${k}" aria-current="${k === state.industry}">
+        <div class="ihead"><svg viewBox="0 0 24 24">${ICONS[t.icon]}</svg><h3>${esc(t.name)}</h3></div>
+        <p class="meta">${t.objects.length} object types · ${t.links.length} links · ${autos} automations</p>
+        <ul>${t.objects.slice(0, 4).map((o) => `<li>${esc(o.name)}</li>`).join("")}</ul>
+      </button>`;
+    }).join("");
+  }
+  $("#industry-grid").addEventListener("click", (e) => {
+    const b = e.target.closest(".icard"); if (!b) return;
+    if (b.dataset.k !== state.industry) switchIndustry(0, b.dataset.k);
+    $("#stage-wrap").scrollIntoView({ behavior: still ? "auto" : "smooth", block: "start" });
+  });
+  $("#relayout-top").addEventListener("click", () => { state.positions = {}; renderFresh(); });
+  $("#customize-2").addEventListener("click", openDrawer);
+  $("#share-2").addEventListener("click", () => $("#share").click());
+
+  // Closing band art: seeded contour field in ink, after the site's motifs.
+  function bandArt() {
+    let seed = 1234567;
+    const r = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+    let p = "";
+    for (let i = 0; i < 22; i++) {
+      const base = 4 + i * (96 / 22), amp = 3 + r() * 10, f = 0.8 + r() * 2.2, ph = r() * 6.283;
+      let d = "";
+      for (let x = 0; x <= 100; x += 1.6) {
+        const y = base + amp * Math.sin((x / 100) * f * 6.283 + ph) * Math.sin((x / 100) * 3.1416);
+        d += `${x === 0 ? "M" : "L"}${x.toFixed(1)} ${y.toFixed(1)} `;
+      }
+      p += `<path d="${d}" fill="none" stroke-width="0.35" opacity="${(0.12 + 0.4 * (1 - i / 22)).toFixed(2)}"/>`;
+    }
+    $("#band-art").innerHTML = p;
+  }
+
+  /* ---------------------------------------------------------------- boot */
   loadInitial().then((s) => {
     state = s;
-    const go = () => { render(); document.body.classList.add("ready"); };
-    if (document.fonts && document.fonts.load) document.fonts.load('11px "Space Mono"').then(go, go); else go();
+    const go = () => {
+      renderFresh(); renderIndustryGrid(); bandArt();
+      document.body.classList.add("ready");
+      scrollDepth();
+    };
+    if (document.fonts && document.fonts.load) Promise.all([document.fonts.load("500 12px Switzer"), document.fonts.load("400 12px Switzer")]).then(go, go); else go();
   });
 })();
