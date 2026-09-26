@@ -441,6 +441,7 @@
     svg.innerHTML = `
       <defs>
         <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"/></marker>
+        <marker id="arrow-gold" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"/></marker>
         <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#1f2328" flood-opacity=".12"/></filter>
       </defs>
       <g class="tier tier-top">${topTier()}</g>
@@ -745,7 +746,7 @@
     clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
     clone.setAttribute("width", VB.w); clone.setAttribute("height", VB.h);
     const css = Array.from(document.styleSheets).filter((s) => { try { return s.cssRules && (s.href || "").includes("style.css") || !s.href; } catch (_) { return false; } })
-      .flatMap((s) => Array.from(s.cssRules)).map((r) => r.cssText).filter((t) => /(#stage|\.stage|\.node|\.edge|\.pill |\.pill-|\.slab|\.wire|\.tile|\.card|\.tier|\.mon|\.mini|\.icon|\.ontology|\.grid line|\.hit|\.disc|\.dot-|\.row|:root|prefers-color-scheme|@keyframes)/.test(t) && !/\.stage-wrap|\.stage-tilt|\.stagesec/.test(t)).join("\n");
+      .flatMap((s) => Array.from(s.cssRules)).map((r) => r.cssText).filter((t) => /(#stage|#arrow|\.stage|\.node|\.edge|\.pill |\.pill-|\.slab|\.wire|\.tile|\.card|\.tier|\.mon|\.mini|\.icon|\.ontology|\.grid line|\.hit|\.disc|\.dot-|\.row|:root|prefers-color-scheme|@keyframes)/.test(t) && !/\.stage-wrap|\.stage-tilt|\.stagesec/.test(t)).join("\n");
     const style = document.createElementNS("http://www.w3.org/2000/svg", "style");
     style.textContent = `${css}`;
     clone.insertBefore(style, clone.firstChild);
