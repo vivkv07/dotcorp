@@ -1,5 +1,9 @@
 # Ontology Studio
 
+[![Deploy to GitHub Pages](https://github.com/vivkv07/dotcorp/actions/workflows/pages.yml/badge.svg)](https://github.com/vivkv07/dotcorp/actions/workflows/pages.yml)
+
+**Live site:** https://vivkv07.github.io/dotcorp/
+
 A single-page site where people from any company can see what **their** ontology could look like:
 the object types their business runs on (plants, orders, customers, claims…), the links between
 them, the automations that act on them, and the data, logic and systems that feed and consume it.
@@ -18,6 +22,14 @@ the ontology slab in the middle, and data sources, logic sources and systems of 
 - **Personalise**: type your company name and the diagram and headline update.
 - **Share & export**: share links carry the whole model in the URL (gzip + base64), plus PNG, SVG
   and JSON export and JSON import. Edits also persist in the browser's local storage.
+
+## Design
+
+The page follows the 78East Labs design system: ink on paper with a warm surface, one typeface
+(Switzer, weights 300 to 600, never bold), a 6px radius, and four permitted transitions. Every
+colour is a token, so the dark scheme is the same page with the tokens swapped. Motion follows the
+same system: the stage tilts toward the cursor, sections rise into view, and selecting an object
+blooms its ring, draws its links, and slides in its property card.
 
 ## Running
 
