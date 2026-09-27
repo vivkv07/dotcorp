@@ -201,12 +201,12 @@
 
   /* ------------------------------------------------------------- rendering */
   function textW(text, size, weight = "400") {
-    measureCtx.font = `${weight} ${size}px Switzer, -apple-system, "Helvetica Neue", Arial, sans-serif`;
+    measureCtx.font = `${weight} ${size}px "Space Mono", "SFMono-Regular", Menlo, monospace`;
     return measureCtx.measureText(text).width;
   }
   const HEAVY = /pill-object|pill-action|pill-auto|pill-outline/;
   function pill(x, y, text, cls, size = 11, padX = 9, h = 20, anchor = "middle", extra = "") {
-    const w = textW(text, size, HEAVY.test(cls) ? "500" : "400") + padX * 2;
+    const w = textW(text, size, /pill-object/.test(cls) ? "700" : "400") + padX * 2;
     const x0 = anchor === "middle" ? x - w / 2 : anchor === "start" ? x : x - w;
     return `<g class="pill ${cls}" ${extra}><rect x="${x0.toFixed(1)}" y="${(y - h / 2).toFixed(1)}" width="${w.toFixed(1)}" height="${h}" rx="${h / 2}"/><text x="${(x0 + w / 2).toFixed(1)}" y="${(y + size * 0.36).toFixed(1)}" font-size="${size}">${esc(text)}</text></g>`;
   }
@@ -234,42 +234,62 @@
   }
 
   function monitor(x, y, w, h, kind) {
-    // Small line-art "screen" with a schematic chart, list or tree inside.
+    // A line-art screen with a small scene inside: a chart, a map, a list, a
+    // board, a tree, a form or a code editor. Drawn in the page's pastel
+    // palette so the platforms read as products rather than wireframes.
+    const ix = x + 7, iy = y + 13, iw = w - 14, ih = h - 20;
+    const X = (t) => (ix + t * iw).toFixed(1), Y = (t) => (iy + t * ih).toFixed(1);
     let inner = "";
-    const ix = x + 8, iy = y + 8, iw = w - 16, ih = h - 16;
     if (kind === "line") {
-      const pts = [0, .2, .35, .5, .65, .8, 1].map((t, i) => [ix + t * iw, iy + ih * (0.75 - 0.5 * Math.abs(Math.sin(i * 1.7)))]);
-      inner = `<polyline class="mini-line" points="${pts.map((p) => p.map((n) => n.toFixed(1)).join(",")).join(" ")}"/>` +
-        pts.map((p) => `<circle class="mini-dot" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.2"/>`).join("");
+      const pts = [0, .15, .3, .45, .6, .75, .9, 1].map((t, i) => [ix + t * iw, iy + ih * (0.82 - 0.55 * Math.abs(Math.sin(i * 1.3 + 0.4)))]);
+      const path = pts.map((p, i) => `${i ? "L" : "M"}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(" ");
+      inner = [.25, .5, .75].map((t) => `<line class="mini-gridline" x1="${ix}" y1="${Y(t)}" x2="${ix + iw}" y2="${Y(t)}"/>`).join("") +
+        `<path class="mini-area" d="${path} L${X(1)},${Y(1)} L${X(0)},${Y(1)} Z"/><path class="mini-line" d="${path}"/>` +
+        `<line class="mini-axis" x1="${ix}" y1="${Y(1)}" x2="${ix + iw}" y2="${Y(1)}"/>` +
+        pts.filter((_, i) => i % 2).map((p) => `<circle class="mini-dot" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2"/>`).join("");
     } else if (kind === "bars") {
-      inner = [.3, .55, .45, .8, .6, .9, .5].map((v, i) => `<rect class="mini-bar" x="${(ix + i * iw / 7 + 2).toFixed(1)}" y="${(iy + ih * (1 - v)).toFixed(1)}" width="${(iw / 7 - 4).toFixed(1)}" height="${(ih * v).toFixed(1)}"/>`).join("");
+      inner = [.35, .6, .45, .85, .55, .95, .7].map((v, i) => `<rect class="mini-bar${i % 2 ? " alt" : ""}" x="${(ix + i * iw / 7 + 2).toFixed(1)}" y="${(iy + ih * (1 - v)).toFixed(1)}" width="${(iw / 7 - 4).toFixed(1)}" height="${(ih * v).toFixed(1)}" rx="1"/>`).join("") +
+        `<line class="mini-axis" x1="${ix}" y1="${Y(1)}" x2="${ix + iw}" y2="${Y(1)}"/>`;
     } else if (kind === "map") {
-      inner = `<path class="mini-map" d="M${ix + 4},${iy + ih * .6} q${iw * .2},-${ih * .5} ${iw * .4},-${ih * .2} t${iw * .3},${ih * .1} t${iw * .2},${ih * .3}"/>` +
-        [[.3, .4], [.55, .35], [.7, .6], [.45, .7]].map(([a, b]) => `<circle class="mini-pin" cx="${(ix + a * iw).toFixed(1)}" cy="${(iy + b * ih).toFixed(1)}" r="3"/>`).join("");
+      inner = `<rect class="mini-block" x="${X(.08)}" y="${Y(.12)}" width="${(iw * .22).toFixed(1)}" height="${(ih * .22).toFixed(1)}"/><rect class="mini-block" x="${X(.7)}" y="${Y(.6)}" width="${(iw * .2).toFixed(1)}" height="${(ih * .28).toFixed(1)}"/><rect class="mini-block" x="${X(.12)}" y="${Y(.66)}" width="${(iw * .16).toFixed(1)}" height="${(ih * .2).toFixed(1)}"/>` +
+        `<path class="mini-map" d="M${X(0)},${Y(.5)} H${X(1)} M${X(.5)},${Y(0)} V${Y(1)}"/>` +
+        `<path class="mini-route" d="M${X(.1)},${Y(.85)} Q${X(.3)},${Y(.35)} ${X(.55)},${Y(.5)} T${X(.9)},${Y(.2)}"/>` +
+        [[.1, .85], [.55, .5], [.9, .2]].map(([a, b]) => `<circle class="mini-pin" cx="${X(a)}" cy="${Y(b)}" r="4"/><circle class="mini-pin-core" cx="${X(a)}" cy="${Y(b)}" r="1.5"/>`).join("");
     } else if (kind === "list") {
-      inner = [0, 1, 2, 3, 4].map((i) => `<rect class="mini-row" x="${ix}" y="${(iy + i * ih / 5 + 2).toFixed(1)}" width="${iw}" height="${(ih / 5 - 5).toFixed(1)}" rx="2"/><circle class="mini-check" cx="${ix + 6}" cy="${(iy + i * ih / 5 + ih / 10).toFixed(1)}" r="2.2"/>`).join("");
+      inner = [0, 1, 2, 3, 4].map((i) => { const ry = iy + i * ih / 5 + 2, rh = ih / 5 - 5, cy = ry + rh / 2; return `<rect class="mini-row" x="${ix}" y="${ry.toFixed(1)}" width="${iw}" height="${rh.toFixed(1)}" rx="2"/><rect class="mini-box${i < 3 ? " on" : ""}" x="${ix + 4}" y="${(cy - 3).toFixed(1)}" width="6" height="6" rx="1"/><line class="mini-text-line dark" x1="${ix + 15}" y1="${cy.toFixed(1)}" x2="${(ix + 15 + iw * (0.35 + (i % 3) * 0.12)).toFixed(1)}" y2="${cy.toFixed(1)}"/>`; }).join("");
     } else if (kind === "kanban") {
-      inner = [0, 1, 2].map((c) => [0, 1, 2].slice(0, 3 - (c % 2)).map((r) => `<rect class="mini-card" x="${(ix + c * iw / 3 + 2).toFixed(1)}" y="${(iy + r * ih / 3 + 2).toFixed(1)}" width="${(iw / 3 - 4).toFixed(1)}" height="${(ih / 3 - 4).toFixed(1)}" rx="2"/>`).join("")).join("");
+      inner = [0, 1, 2].map((c) => { const cx0 = ix + c * iw / 3 + 1, cw = iw / 3 - 2; return `<rect class="mini-col" x="${cx0.toFixed(1)}" y="${iy}" width="${cw.toFixed(1)}" height="${ih}" rx="2"/><rect class="mini-colhead" x="${cx0.toFixed(1)}" y="${iy}" width="${cw.toFixed(1)}" height="5" rx="2"/>` +
+        [0, 1, 2].slice(0, 3 - (c % 2)).map((r) => { const cy0 = iy + 8 + r * (ih - 8) / 3; const ch = (ih - 8) / 3 - 3; return `<rect class="mini-card" x="${(cx0 + 2).toFixed(1)}" y="${cy0.toFixed(1)}" width="${(cw - 4).toFixed(1)}" height="${ch.toFixed(1)}" rx="1.5"/><line class="mini-text-line dark" x1="${(cx0 + 5).toFixed(1)}" y1="${(cy0 + 4).toFixed(1)}" x2="${(cx0 + cw - 6).toFixed(1)}" y2="${(cy0 + 4).toFixed(1)}"/><line class="mini-text-line" x1="${(cx0 + 5).toFixed(1)}" y1="${(cy0 + 8).toFixed(1)}" x2="${(cx0 + cw * .6).toFixed(1)}" y2="${(cy0 + 8).toFixed(1)}"/>`; }).join(""); }).join("");
     } else if (kind === "tree") {
-      const cx = ix + iw / 2, r1 = iy + 6, r2 = iy + ih / 2, r3 = iy + ih - 6;
-      inner = `<path class="mini-tree" d="M${cx},${r1} v${r2 - r1 - 6} M${ix + iw * .2},${r2} H${ix + iw * .8} M${ix + iw * .2},${r2} v${r3 - r2 - 6} M${ix + iw * .8},${r2} v${r3 - r2 - 6} M${cx},${r2} v${r3 - r2 - 6}"/>` +
-        [[cx, r1], [ix + iw * .2, r3 - 3], [cx, r3 - 3], [ix + iw * .8, r3 - 3]].map(([a, b]) => `<rect class="mini-node" x="${(a - 9).toFixed(1)}" y="${(b - 4).toFixed(1)}" width="18" height="8" rx="2"/>`).join("");
+      const cx = ix + iw / 2, r1 = iy + 6, r2 = iy + ih / 2, r3 = iy + ih - 7;
+      const kids = [.18, .5, .82].map((t) => ix + iw * t);
+      inner = `<path class="mini-tree" d="M${cx},${r1 + 4} V${r2} M${kids[0]},${r2} H${kids[2]} ${kids.map((k) => `M${k},${r2} V${r3 - 5}`).join(" ")}"/>` +
+        `<rect class="mini-node root" x="${cx - 12}" y="${r1 - 5}" width="24" height="9" rx="2"/>` +
+        kids.map((k) => `<rect class="mini-node" x="${k - 10}" y="${r3 - 5}" width="20" height="9" rx="2"/><line class="mini-text-line" x1="${k - 6}" y1="${r3 - .5}" x2="${k + 6}" y2="${r3 - .5}"/>`).join("");
     } else if (kind === "action") {
-      inner = `<rect class="mini-row" x="${ix}" y="${iy}" width="${iw}" height="${ih * .3}" rx="2"/><rect class="mini-action" x="${ix}" y="${(iy + ih * .45).toFixed(1)}" width="${iw * .6}" height="${ih * .3}" rx="4"/><text class="mini-text" x="${(ix + iw * .3).toFixed(1)}" y="${(iy + ih * .66).toFixed(1)}" font-size="7">ACTION</text>`;
+      inner = [0, 1].map((i) => `<rect class="mini-field" x="${ix}" y="${(iy + i * ih * .27).toFixed(1)}" width="${iw}" height="${(ih * .2).toFixed(1)}" rx="2"/><line class="mini-text-line" x1="${ix + 4}" y1="${(iy + i * ih * .27 + ih * .1).toFixed(1)}" x2="${(ix + iw * (0.45 + i * .2)).toFixed(1)}" y2="${(iy + i * ih * .27 + ih * .1).toFixed(1)}"/>`).join("") +
+        `<rect class="mini-action" x="${ix}" y="${Y(.62)}" width="${(iw * .58).toFixed(1)}" height="${(ih * .3).toFixed(1)}" rx="4"/><text class="mini-text" x="${X(.29)}" y="${(iy + ih * .82).toFixed(1)}">ACTION</text>`;
+    } else if (kind === "code") {
+      const lines = [[.1, .35, "k"], [.18, .6, "v"], [.18, .45, "s"], [.1, .2, "c"], [.18, .7, "v"], [.26, .4, "k"], [.1, .3, "c"]];
+      inner = `<rect class="mini-gutter" x="${ix}" y="${iy}" width="6" height="${ih}"/>` +
+        lines.map(([a, b, cls], i) => { const ly = iy + 5 + i * (ih - 6) / lines.length; return `<line class="mini-code ${cls}" x1="${(ix + 9 + iw * a).toFixed(1)}" y1="${ly.toFixed(1)}" x2="${(ix + 9 + iw * (a + b)).toFixed(1)}" y2="${ly.toFixed(1)}"/>`; }).join("");
     }
-    return `<g class="monitor"><rect class="mon-frame" x="${x}" y="${y}" width="${w}" height="${h}" rx="3"/>
-      <path class="mon-bar" d="M${x + 4},${y + 5} h${w - 8}"/><circle class="mon-btn" cx="${x + w - 7}" cy="${y + 5}" r="1.5"/>
+    return `<g class="monitor"><ellipse class="mon-shadow" cx="${x + w / 2}" cy="${y + h + 11}" rx="${(w * .42).toFixed(1)}" ry="3"/>
+      <rect class="mon-frame" x="${x}" y="${y}" width="${w}" height="${h}" rx="3"/>
+      <rect class="mon-bar" x="${x + .5}" y="${y + .5}" width="${w - 1}" height="9" rx="2.5"/>
+      <circle class="mon-btn b1" cx="${x + 6}" cy="${y + 5}" r="1.5"/><circle class="mon-btn b2" cx="${x + 11}" cy="${y + 5}" r="1.5"/><circle class="mon-btn b3" cx="${x + 16}" cy="${y + 5}" r="1.5"/>
+      <rect class="mon-screen" x="${x + 4}" y="${y + 11}" width="${w - 8}" height="${h - 15}" rx="2"/>
       ${inner}
-      <path class="mon-stand" d="M${x + w / 2 - 10},${y + h + 8} h20 M${x + w / 2},${y + h} v8"/></g>`;
+      <path class="mon-stand" d="M${x + w / 2 - 12},${y + h + 9} h24 l-3,-3 h-18 Z M${x + w / 2 - 3},${y + h} h6 v6 h-6 Z"/></g>`;
   }
 
   const P_X = [80, 230, 380]; // portrait: the three platforms and the three tiers
   function topTierPortrait() {
     let out = "";
-    const kinds = ["line", "kanban", "tree"];
+    const kinds = ["line", "kanban", "code"];
     const starts = [], ends = [];
     P_X.forEach((cx, k) => {
-      out += `<text class="tier-label small" x="${cx}" y="22">${esc(TOP_LABELS[k])}</text>`;
+      out += `<text class="tier-label small" x="${cx}" y="22">${esc(TOP_LABELS[k]).toUpperCase()}</text>`;
       out += slab(cx, 122, 116, 152, 132, 8, "tier-slab");
       out += monitor(cx - 40, 44, 80, 58, kinds[k]);
       for (let i = 0; i < 4; i++) {
@@ -288,9 +308,9 @@
       const tiles = state.sources[TIER_KEYS[k]] || [];
       tiles.slice(0, 6).forEach((t, i) => {
         const x = cx - 58, y = top + 10 + i * 34;
-        out += `<g class="tile small ${TIER_CLASS[k]}" data-tier="${TIER_KEYS[k]}" data-i="${i}" style="--i:${k * 6 + i}"><rect x="${x}" y="${y}" width="116" height="28" rx="4"/><text x="${cx}" y="${y + 18}">${esc(t)}</text></g>`;
+        out += `<g class="tile small ${TIER_CLASS[k]}" data-tier="${TIER_KEYS[k]}" data-i="${i}" style="--i:${k * 6 + i}"><rect x="${x}" y="${y}" width="116" height="28" rx="3"/><text x="${cx}" y="${y + 18}">${esc(t).toUpperCase()}</text></g>`;
       });
-      out += `<text class="tier-label small" x="${cx}" y="${top + 258}">${esc(BOTTOM_LABELS[k])}</text>`;
+      out += `<text class="tier-label small" x="${cx}" y="${top + 258}">${esc(BOTTOM_LABELS[k]).toUpperCase()}</text>`;
       for (let i = 0; i < 4; i++) {
         starts.push([lerp(SLAB.bl[0] + 30, SLAB.br[0] - 30, (k * 4 + i + 0.5) / 12), SLAB.bl[1] + SLAB.depth]);
         ends.push([cx - 36 + i * 24, top]);
@@ -303,11 +323,11 @@
     if (portrait) return topTierPortrait();
     let out = "";
     TOP_X.forEach((cx, k) => {
-      out += `<text class="tier-label" x="${cx}" y="102">${esc(TOP_LABELS[k])}</text>`;
+      out += `<text class="tier-label" x="${cx}" y="102">${esc(TOP_LABELS[k]).toUpperCase()}</text>`;
       out += slab(cx, 250, 300, 300, 350, 12, "tier-slab");
       if (k === 0) out += monitor(cx - 120, 132, 105, 78, "line") + monitor(cx + 10, 148, 110, 80, "map") + monitor(cx - 60, 190, 100, 62, "bars");
       if (k === 1) out += monitor(cx - 115, 150, 95, 75, "list") + monitor(cx - 20, 132, 110, 84, "kanban") + monitor(cx + 45, 178, 70, 60, "line");
-      if (k === 2) out += monitor(cx - 120, 140, 100, 75, "action") + monitor(cx + 15, 138, 110, 80, "tree") + monitor(cx - 55, 190, 100, 60, "list");
+      if (k === 2) out += monitor(cx - 120, 140, 100, 75, "action") + monitor(cx + 15, 138, 110, 80, "tree") + monitor(cx - 55, 190, 100, 60, "code");
     });
     // wires: ontology top edge → tier plates
     const starts = [], ends = [];
@@ -333,9 +353,9 @@
       tiles.slice(0, 6).forEach((t, i) => {
         const col = i % 2, r = Math.floor(i / 2);
         const x = cx - 150 + col * 152, y = 753 + r * 46;
-        out += `<g class="tile ${TIER_CLASS[k]}" data-tier="${TIER_KEYS[k]}" data-i="${i}" style="--i:${k * 6 + i}"><rect x="${x}" y="${y}" width="148" height="38" rx="4"/><text x="${x + 74}" y="${y + 23}">${esc(t)}</text></g>`;
+        out += `<g class="tile ${TIER_CLASS[k]}" data-tier="${TIER_KEYS[k]}" data-i="${i}" style="--i:${k * 6 + i}"><rect x="${x}" y="${y}" width="148" height="38" rx="3"/><text x="${x + 74}" y="${y + 23}">${esc(t).toUpperCase()}</text></g>`;
       });
-      out += `<text class="tier-label" x="${cx}" y="962">${esc(BOTTOM_LABELS[k])}</text>`;
+      out += `<text class="tier-label" x="${cx}" y="962">${esc(BOTTOM_LABELS[k]).toUpperCase()}</text>`;
       for (let i = 0; i < 8; i++) {
         starts.push([lerp(SLAB.bl[0] + 40, SLAB.br[0] - 40, (k * 8 + i + 0.5) / 24), SLAB.bl[1] + SLAB.depth]);
         ends.push([cx - 112 + i * 32, 740]);
@@ -354,9 +374,9 @@
       <g class="grid">${[0.2, 0.4, 0.6, 0.8].map((v) => { const a = project(0, v), b = project(1, v); return `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}"/>`; }).join("")}
       ${[0.2, 0.4, 0.6, 0.8].map((u) => { const a = project(u, 0), b = project(u, 1); return `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}"/>`; }).join("")}</g>
     </g>
-    <g class="ontology-tag"><rect x="${S.bl[0] + 10}" y="${S.bl[1] - 4}" width="${textW("Ontology · " + (state.company || "Your company"), 11, "500") + 40}" height="22" rx="4"/>
+    <g class="ontology-tag"><rect x="${S.bl[0] + 10}" y="${S.bl[1] - 4}" width="${textW("ONTOLOGY · " + (state.company || "YOUR COMPANY").toUpperCase(), 11) + 40}" height="22" rx="2"/>
       <circle cx="${S.bl[0] + 22}" cy="${S.bl[1] + 7}" r="4"/><circle cx="${S.bl[0] + 22}" cy="${S.bl[1] + 7}" r="1.5" class="dot"/>
-      <text x="${S.bl[0] + 32}" y="${S.bl[1] + 11}">Ontology · ${esc(state.company || "Your company")}</text></g>`;
+      <text x="${S.bl[0] + 32}" y="${S.bl[1] + 11}">ONTOLOGY · ${esc((state.company || "Your Company").toUpperCase())}</text></g>`;
   }
 
   // Each automated object puts its purple "Automation" pill on one of its links
@@ -486,12 +506,12 @@
     const linkCount = state.links.filter((l) => l.source === o.id || l.target === o.id).length;
     const h = 64 + rows.length * rowH + (o.automation ? 30 : 0) + 8;
     let out = `<g class="card"><rect class="card-bg" x="${x}" y="${y}" width="${w}" height="${h}" rx="6"/>
-      <text class="card-title" x="${x + 16}" y="${y + 26}">${esc(o.name)}</text>
+      <text class="card-title" x="${x + 16}" y="${y + 26}">${esc(o.name.toUpperCase())} OBJECT</text>
       <text class="card-meta" x="${x + 16}" y="${y + 42}">Object type · ${linkCount} link${linkCount === 1 ? "" : "s"} · ${rows.length} propert${rows.length === 1 ? "y" : "ies"}</text>
       <line class="card-rule" x1="${x + 16}" y1="${y + 52}" x2="${x + w - 16}" y2="${y + 52}"/>`;
     rows.forEach((p, i) => {
       const ry = y + 70 + i * rowH;
-      const vw = textW(p.value, 11, "500");
+      const vw = textW(p.value, 10);
       out += `<g class="row" style="--i:${i}"><text class="card-label" x="${x + 16}" y="${ry}">${esc(p.label)}</text>
         <circle class="dot dot-${esc(p.status || "neutral")}" cx="${(x + w - 16 - vw - 10).toFixed(1)}" cy="${ry - 3.5}" r="3"/>
         <text class="card-value" x="${x + w - 16}" y="${ry}" text-anchor="end">${esc(p.value)}</text></g>`;
@@ -518,7 +538,7 @@
     svg.innerHTML = `
       <defs>
         <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"/></marker>
-        <marker id="arrow-gold" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"/></marker>
+        <marker id="arrow-sel" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"/></marker>
         <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#1f2328" flood-opacity=".12"/></filter>
       </defs>
       <g class="tier tier-top">${topTier()}</g>
@@ -542,7 +562,7 @@
     applyHover();
   }
   // Re-render when the viewport crosses the phone breakpoint.
-  portraitQuery.addEventListener("change", () => { if (state) renderFresh(); });
+  portraitQuery.addEventListener("change", () => { if (state && portraitQuery.matches !== portrait) renderFresh(); });
 
   function applyHover() {
     const id = hover;
@@ -820,6 +840,91 @@
     }).catch(() => toast("That file is not an Ontology Studio export")).finally(() => { e.target.value = ""; });
   });
 
+  /* ----------------------------------------------- ontology exports */
+  const slug = (t) => String(t || "").toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "") || "x";
+  const pascal = (t) => String(t || "").replace(/[^a-zA-Z0-9]+(.)?/g, (_, c) => (c ? c.toUpperCase() : "")).replace(/^./, (c) => c.toUpperCase()) || "Thing";
+  const ttlStr = (t) => JSON.stringify(String(t ?? ""));
+  const STUDIO_NS = "https://vivkv07.github.io/dotcorp/vocab#";
+  function ontologyBase() {
+    return `https://vivkv07.github.io/dotcorp/ontology/${slug(state.company || "your-company")}#`;
+  }
+  // The shared model behind all three formats: classes, datatype properties
+  // with sample values, object properties (one per link), and the source tiers.
+  function ontologyModel() {
+    const base = ontologyBase();
+    const cls = (o) => base + pascal(o.name);
+    const byId = new Map(state.objects.map((o) => [o.id, o]));
+    const classes = state.objects.map((o) => ({
+      iri: cls(o), label: o.name, icon: o.icon, automation: o.automation || null,
+      props: (o.props || []).map((p) => ({ iri: base + slug(o.name) + "_" + slug(p.label), label: p.label, sample: p.value, status: p.status || "neutral" })),
+    }));
+    const links = state.links.filter((l) => byId.has(l.source) && byId.has(l.target)).map((l) => {
+      const a = byId.get(l.source), b = byId.get(l.target);
+      return { iri: base + slug(a.name) + "_" + slug(l.verb || "relates to") + "_" + slug(b.name), label: l.verb || "relates to", domain: cls(a), range: cls(b), a, b };
+    });
+    const tierClass = { data: "DataSource", logic: "LogicSource", action: "SystemOfAction" };
+    const sources = TIER_KEYS.flatMap((k) => (state.sources[k] || []).map((t) => ({ iri: base + "source_" + slug(t), label: t, type: STUDIO_NS + tierClass[k] })));
+    return { base, classes, links, sources, title: `${state.company || "Your company"} ontology`, industry: INDUSTRIES[state.industry].name };
+  }
+  function exportTurtle() {
+    const m = ontologyModel();
+    const q = (iri) => iri.startsWith(m.base) ? ":" + iri.slice(m.base.length) : iri.startsWith(STUDIO_NS) ? "os:" + iri.slice(STUDIO_NS.length) : `<${iri}>`;
+    const today = new Date().toISOString().slice(0, 10);
+    let out = `@prefix : <${m.base}> .\n@prefix os: <${STUDIO_NS}> .\n@prefix owl: <http://www.w3.org/2002/07/owl#> .\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n@prefix dcterms: <http://purl.org/dc/terms/> .\n\n`;
+    out += `<${m.base.slice(0, -1)}> a owl:Ontology ;\n    rdfs:label ${ttlStr(m.title)} ;\n    dcterms:created "${today}"^^xsd:date ;\n    dcterms:description ${ttlStr(`Object types, links and automations for a ${m.industry.toLowerCase()} business, drawn in Ontology Studio.`)} .\n\n### Object types\n`;
+    m.classes.forEach((c) => {
+      out += `\n${q(c.iri)} a owl:Class ;\n    rdfs:label ${ttlStr(c.label)} ;\n    os:icon ${ttlStr(c.icon)}` + (c.automation ? ` ;\n    os:automation ${ttlStr(c.automation)}` : "") + ` .\n`;
+      c.props.forEach((p) => {
+        out += `${q(p.iri)} a owl:DatatypeProperty ;\n    rdfs:label ${ttlStr(p.label)} ;\n    rdfs:domain ${q(c.iri)} ;\n    rdfs:range xsd:string ;\n    os:sampleValue ${ttlStr(p.sample)} ;\n    os:status ${ttlStr(p.status)} .\n`;
+      });
+    });
+    out += `\n### Links\n`;
+    m.links.forEach((l) => {
+      out += `\n${q(l.iri)} a owl:ObjectProperty ;\n    rdfs:label ${ttlStr(l.label)} ;\n    rdfs:domain ${q(l.domain)} ;\n    rdfs:range ${q(l.range)} .\n`;
+    });
+    out += `\n### Sources feeding and consuming the ontology\n`;
+    m.sources.forEach((s) => { out += `${q(s.iri)} a ${q(s.type)} ;\n    rdfs:label ${ttlStr(s.label)} .\n`; });
+    return out;
+  }
+  function exportJsonLd() {
+    const m = ontologyModel();
+    const graph = [{ "@id": m.base.slice(0, -1), "@type": "owl:Ontology", label: m.title, "dcterms:created": new Date().toISOString().slice(0, 10) }];
+    m.classes.forEach((c) => {
+      graph.push({ "@id": c.iri, "@type": "owl:Class", label: c.label, icon: c.icon, ...(c.automation ? { automation: c.automation } : {}) });
+      c.props.forEach((p) => graph.push({ "@id": p.iri, "@type": "owl:DatatypeProperty", label: p.label, domain: c.iri, range: "xsd:string", sampleValue: p.sample, status: p.status }));
+    });
+    m.links.forEach((l) => graph.push({ "@id": l.iri, "@type": "owl:ObjectProperty", label: l.label, domain: l.domain, range: l.range }));
+    m.sources.forEach((s) => graph.push({ "@id": s.iri, "@type": s.type, label: s.label }));
+    return JSON.stringify({
+      "@context": {
+        "@vocab": STUDIO_NS,
+        owl: "http://www.w3.org/2002/07/owl#", rdfs: "http://www.w3.org/2000/01/rdf-schema#", xsd: "http://www.w3.org/2001/XMLSchema#", dcterms: "http://purl.org/dc/terms/",
+        label: "rdfs:label", domain: { "@id": "rdfs:domain", "@type": "@id" }, range: { "@id": "rdfs:range", "@type": "@id" },
+      },
+      "@graph": graph,
+    }, null, 2);
+  }
+  function exportMermaid() {
+    const m = ontologyModel();
+    const name = (label) => /^[A-Za-z_][A-Za-z0-9_]*$/.test(label) ? label : "`" + label + "`";
+    let out = `classDiagram\n    %% ${m.title} (${m.industry}), drawn in Ontology Studio\n    direction LR\n`;
+    m.classes.forEach((c) => {
+      out += `    class ${name(c.label)} {\n`;
+      if (c.automation) out += `        <<automation: ${c.automation}>>\n`;
+      c.props.forEach((p) => { out += `        +${p.label.replace(/[^\w ]/g, "")} ${String(p.sample).replace(/[{}]/g, "")}\n`; });
+      out += `    }\n`;
+    });
+    m.links.forEach((l) => { out += `    ${name(l.a.name)} --> ${name(l.b.name)} : ${l.label}\n`; });
+    return out;
+  }
+  $("#export-ttl").addEventListener("click", () => download(`${fileBase()}-ontology.ttl`, new Blob([exportTurtle()], { type: "text/turtle" })));
+  $("#export-jsonld").addEventListener("click", () => download(`${fileBase()}-ontology.jsonld`, new Blob([exportJsonLd()], { type: "application/ld+json" })));
+  $("#export-mermaid").addEventListener("click", () => download(`${fileBase()}-ontology.mmd`, new Blob([exportMermaid()], { type: "text/plain" })));
+  $("#copy-mermaid").addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(exportMermaid()); toast("Mermaid diagram copied"); }
+    catch (_) { download(`${fileBase()}-ontology.mmd`, new Blob([exportMermaid()], { type: "text/plain" })); }
+  });
+
   function exportSvgString() {
     const clone = svg.cloneNode(true);
     clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
@@ -827,7 +932,7 @@
     const css = Array.from(document.styleSheets).filter((s) => { try { return s.cssRules && (s.href || "").includes("style.css") || !s.href; } catch (_) { return false; } })
       .flatMap((s) => Array.from(s.cssRules)).map((r) => r.cssText).filter((t) => /(#stage|#arrow|\.stage|\.node|\.edge|\.pill |\.pill-|\.slab|\.wire|\.tile|\.card|\.tier|\.mon|\.mini|\.icon|\.ontology|\.grid line|\.hit|\.disc|\.dot-|\.row|:root|prefers-color-scheme|@keyframes)/.test(t) && !/\.stage-wrap|\.stage-tilt|\.stagesec/.test(t)).join("\n");
     const style = document.createElementNS("http://www.w3.org/2000/svg", "style");
-    style.textContent = `${css}`;
+    style.textContent = `@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');\n${css}`;
     clone.insertBefore(style, clone.firstChild);
     $$(".hit", clone).forEach((h) => h.remove());
     return new XMLSerializer().serializeToString(clone);
@@ -847,7 +952,6 @@
     img.src = url;
   });
 
-  /* ---------------------------------------------------------------- boot */
   /* ------------------------------------------------------- page motion */
   const fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
   const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -887,16 +991,6 @@
       entries.forEach((en) => { if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); } });
     }, { rootMargin: "0px 0px -6% 0px", threshold: 0 });
     below.forEach((s) => io.observe(s));
-    const band = $(".band");
-    let raf = 0;
-    const parallax = () => {
-      raf = 0;
-      const r = band.getBoundingClientRect();
-      const mid = r.top + r.height / 2 - innerHeight / 2;
-      band.style.setProperty("--py", `${(clamp(mid / innerHeight, -1, 1) * 22).toFixed(1)}px`);
-    };
-    addEventListener("scroll", () => { if (!raf) raf = requestAnimationFrame(parallax); }, { passive: true });
-    parallax();
   }
 
   // Industry grid: one card per template, tilting toward the cursor.
@@ -917,34 +1011,15 @@
     $("#stage-wrap").scrollIntoView({ behavior: still ? "auto" : "smooth", block: "start" });
   });
   $("#relayout-top").addEventListener("click", () => { state.positions = {}; renderFresh(); });
-  $("#customize-2").addEventListener("click", openDrawer);
-  $("#share-2").addEventListener("click", () => $("#share").click());
-
-  // Closing band art: seeded contour field in ink, after the site's motifs.
-  function bandArt() {
-    let seed = 1234567;
-    const r = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
-    let p = "";
-    for (let i = 0; i < 22; i++) {
-      const base = 4 + i * (96 / 22), amp = 3 + r() * 10, f = 0.8 + r() * 2.2, ph = r() * 6.283;
-      let d = "";
-      for (let x = 0; x <= 100; x += 1.6) {
-        const y = base + amp * Math.sin((x / 100) * f * 6.283 + ph) * Math.sin((x / 100) * 3.1416);
-        d += `${x === 0 ? "M" : "L"}${x.toFixed(1)} ${y.toFixed(1)} `;
-      }
-      p += `<path d="${d}" fill="none" stroke-width="0.35" opacity="${(0.12 + 0.4 * (1 - i / 22)).toFixed(2)}"/>`;
-    }
-    $("#band-art").innerHTML = p;
-  }
 
   /* ---------------------------------------------------------------- boot */
   loadInitial().then((s) => {
     state = s;
     const go = () => {
-      renderFresh(); renderIndustryGrid(); bandArt();
+      renderFresh(); renderIndustryGrid();
       document.body.classList.add("ready");
       scrollDepth();
     };
-    if (document.fonts && document.fonts.load) Promise.all([document.fonts.load("500 12px Switzer"), document.fonts.load("400 12px Switzer")]).then(go, go); else go();
+    if (document.fonts && document.fonts.load) Promise.all([document.fonts.load('700 12px "Space Mono"'), document.fonts.load('400 12px "Space Mono"')]).then(go, go); else go();
   });
 })();

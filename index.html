@@ -4,75 +4,83 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Ontology Studio</title>
-  <meta name="description" content="See what your company's ontology could look like: objects, links, automations, and the data, logic and systems that power them. Pick an industry, customize, share.">
-  <link rel="preload" href="fonts/Switzer-500.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="fonts/Switzer-400.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="style.css?v=4">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Ccircle cx='12' cy='12' r='3' fill='%23000' stroke='none'/%3E%3C/svg%3E">
+  <meta name="description" content="Visualize what your company's ontology could look like: objects, links, automations, and the data, logic and systems that power them. Pick an industry, customize, share, export to JSON-LD, Turtle or Mermaid.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap">
+  <link rel="stylesheet" href="style.css?v=5">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231f2328' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Ccircle cx='12' cy='12' r='3' fill='%234f7df3' stroke='none'/%3E%3C/svg%3E">
 </head>
 <body>
 
-  <header class="site">
-    <div class="hd">
-      <a class="mark" href="#"><i></i>Ontology Studio</a>
-      <nav class="hnav">
-        <a href="#industries">Industries</a>
-        <a href="#how">How to read it</a>
-      </nav>
-      <button id="share" class="hsecondary">Share link</button>
-      <button id="customize" class="pill-btn">Customize</button>
+  <header class="topbar">
+    <a class="brand" href="#">
+      <span class="brand-mark"></span>
+      <span class="brand-name">DOT CORP</span>
+      <span class="brand-sub">Ontology Studio</span>
+    </a>
+    <div class="topbar-actions">
+      <label class="company-field">
+        <span>Company</span>
+        <input id="company" type="text" placeholder="Your company name" maxlength="40" autocomplete="organization">
+      </label>
+      <button id="customize" class="btn btn-primary">Customize</button>
+      <button id="share" class="btn">Share link</button>
+      <div class="menu">
+        <button class="btn" aria-haspopup="true">Export ▾</button>
+        <div class="menu-items">
+          <div class="menu-head">Picture</div>
+          <button id="export-png">PNG image</button>
+          <button id="export-svg">SVG vector</button>
+          <div class="menu-head">Ontology</div>
+          <button id="export-jsonld">JSON-LD</button>
+          <button id="export-ttl">Turtle (RDF / OWL)</button>
+          <button id="export-mermaid">Mermaid diagram</button>
+          <button id="copy-mermaid">Copy Mermaid to clipboard</button>
+          <hr>
+          <button id="export-json">Studio JSON</button>
+          <label class="file-btn">Import Studio JSON<input id="import-json" type="file" accept="application/json,.json"></label>
+        </div>
+      </div>
     </div>
   </header>
 
   <main>
-    <div class="shell hero">
+    <section class="hero">
+      <p class="eyebrow">A shared model of the business</p>
       <h1>See what <em id="hero-company">your company's</em> ontology could look like.</h1>
       <p class="lede">
-        An ontology is the operational layer that ties data, logic and systems together into the objects
-        your teams actually talk about: plants, orders, customers, claims. Pick an industry, click any
-        object, drag it around, or open Customize to make it yours.
+        An ontology is the operational layer that ties your data, logic and systems together into the objects
+        your teams actually talk about: plants, orders, customers, claims. Pick an industry, then click any object,
+        drag it around, rename tiles, or open <strong>Customize</strong> to make it yours.
       </p>
-      <div class="herobtns">
-        <label class="company-field">
-          <input id="company" type="text" placeholder="Your company name" maxlength="40" autocomplete="organization">
-        </label>
-        <div class="menu">
-          <button class="pill-btn ghost" aria-haspopup="true">Export</button>
-          <div class="menu-items">
-            <button id="export-png">PNG image</button>
-            <button id="export-svg">SVG vector</button>
-            <button id="export-json">JSON</button>
-            <label class="file-btn">Import JSON<input id="import-json" type="file" accept="application/json,.json"></label>
-          </div>
-        </div>
-      </div>
       <ul class="stats">
         <li><b id="stat-objects">0</b> object types</li>
         <li><b id="stat-links">0</b> links</li>
         <li><b id="stat-autos">0</b> automations</li>
       </ul>
-    </div>
+    </section>
 
-    <section id="stage-wrap" class="shell stagesec stage-wrap">
+    <section id="stage-wrap" class="stage-wrap">
       <div class="stage-tilt">
         <svg id="stage" class="stage" viewBox="0 0 1500 1000" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Ontology diagram"></svg>
       </div>
       <aside id="inspector" class="inspector" aria-live="polite"></aside>
       <div class="industry-switch">
         <div class="arrows">
-          <button id="prev-industry" class="pill-btn ghost" title="Previous industry (←)">←</button>
-          <button id="next-industry" class="pill-btn ghost" title="Next industry (→)">→</button>
+          <button id="prev-industry" class="arrow" title="Previous industry (←)">←</button>
+          <button id="next-industry" class="arrow" title="Next industry (→)">→</button>
         </div>
-        <button id="industry-btn" class="pill-btn ghost industry-pill">
+        <button id="industry-btn" class="industry-pill">
           <span id="industry-icon" class="industry-icon"></span>
           <span id="industry-name">Manufacturing</span>
         </button>
         <div id="industry-menu" class="industry-menu"></div>
       </div>
-      <p class="hint">Click or tap an object to inspect it. Drag to rearrange. Click a tile to rename it.</p>
+      <p class="hint">Click or tap an object to inspect it · drag to rearrange · click a tile to rename</p>
     </section>
 
-    <section id="industries" class="shell depthable">
+    <section id="industries" class="section depthable">
       <div class="sechd">
         <h2>Start from your industry</h2>
         <button id="relayout-top" type="button">Re-layout →</button>
@@ -81,44 +89,45 @@
       <div id="industry-grid" class="grid4"></div>
     </section>
 
-    <section id="how" class="shell depthable">
+    <section id="how" class="section depthable">
       <div class="sechd"><h2>How to read it</h2></div>
-      <div class="grid3">
-        <div class="svc">
+      <div class="explainer grid3">
+        <div>
           <h3>Objects, not tables</h3>
           <p>Each disc is an object type with real properties, sourced from the systems below and kept in sync.</p>
-          <ul><li>Plant, Order, Customer, Claim</li><li>Properties with live values</li><li>One definition, every team</li></ul>
         </div>
-        <div class="svc">
+        <div>
           <h3>Links carry meaning</h3>
-          <p>Verbs like <i>supplies</i>, <i>prepares</i> and <i>ships</i> let people and models traverse the business.</p>
-          <ul><li>Typed, directional relationships</li><li>Traversable in both directions</li><li>The graph analysts actually query</li></ul>
+          <p>Verbs like <i>supplies</i>, <i>prepares</i> and <i>ships</i> let analysts and models traverse the business.</p>
         </div>
-        <div class="svc">
+        <div>
           <h3>Actions close the loop</h3>
           <p>Automations write decisions back into systems of action, so insight becomes operation.</p>
-          <ul><li>Flag, notify, schedule, re-price</li><li>Writes back to ERP, CRM, MES</li><li>Audited, reversible, owned</li></ul>
         </div>
       </div>
     </section>
 
-    <section class="shell depthable">
-      <div class="band">
-        <svg class="art" id="band-art" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
+    <section class="section depthable">
+      <div class="sechd"><h2>Take it anywhere</h2></div>
+      <div class="explainer grid3">
         <div>
-          <h2>Make it yours.</h2>
-          <p>Rename the objects, add the links your business runs on, and send the link to the people who need to see it.</p>
+          <h3>JSON-LD</h3>
+          <p>Object types as classes, properties and links as OWL properties, ready for any linked-data toolchain.</p>
         </div>
-        <div class="herobtns">
-          <button id="customize-2" class="pill-btn">Customize</button>
-          <button id="share-2" class="pill-btn ghost">Share link</button>
+        <div>
+          <h3>Turtle</h3>
+          <p>The same ontology as RDF Turtle, loadable into Protégé, GraphDB, Stardog, Jena or Neo4j's n10s.</p>
+        </div>
+        <div>
+          <h3>Mermaid</h3>
+          <p>A class diagram you can paste into GitHub, Notion or Obsidian. Studio JSON round-trips your layout.</p>
         </div>
       </div>
     </section>
   </main>
 
-  <footer class="shell">
-    <span>Ontology Studio</span>
+  <footer class="footer">
+    <span>DOT CORP · Ontology Studio</span>
     <span>Everything stays in your browser. Share links carry the whole model.</span>
   </footer>
 
@@ -126,15 +135,15 @@
   <aside id="drawer" class="drawer" aria-label="Customize ontology">
     <div class="drawer-head">
       <h2>Customize</h2>
-      <button id="close-drawer" class="pill-btn ghost small" title="Close (Esc)">Close</button>
+      <button id="close-drawer" class="icon-btn" title="Close (Esc)">×</button>
     </div>
     <div class="drawer-body">
       <section>
         <h3>Template</h3>
         <div class="row">
           <select id="drawer-industry"></select>
-          <button id="reset-template" class="pill-btn ghost small">Reset</button>
-          <button id="relayout" class="pill-btn ghost small" title="Forget dragged positions">Re-layout</button>
+          <button id="reset-template" class="btn btn-small">Reset</button>
+          <button id="relayout" class="btn btn-small" title="Forget dragged positions">Re-layout</button>
         </div>
       </section>
       <section>
@@ -142,7 +151,7 @@
         <div id="objects-list" class="objects-list"></div>
         <div class="row">
           <input id="new-object" type="text" placeholder="New object type, e.g. Contract">
-          <button id="add-object" class="pill-btn small">Add</button>
+          <button id="add-object" class="btn btn-small">Add</button>
         </div>
       </section>
       <section>
@@ -163,7 +172,7 @@
 
   <div id="toast" class="toast" role="status"></div>
 
-  <script src="data.js?v=4"></script>
-  <script src="app.js?v=4"></script>
+  <script src="data.js?v=5"></script>
+  <script src="app.js?v=5"></script>
 </body>
 </html>
