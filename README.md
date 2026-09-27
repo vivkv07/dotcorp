@@ -20,16 +20,9 @@ the ontology slab in the middle, and data sources, logic sources and systems of 
 - **Customize drawer**: rename objects, pick icons, edit sample properties and their status colour,
   add automations, add or remove links, and edit the three source tiers.
 - **Personalise**: type your company name and the diagram and headline update.
-- **Share & export**: share links carry the whole model in the URL (gzip + base64), plus PNG, SVG
-  and JSON export and JSON import. Edits also persist in the browser's local storage.
-
-## Design
-
-The page follows the 78East Labs design system: ink on paper with a warm surface, one typeface
-(Switzer, weights 300 to 600, never bold), a 6px radius, and four permitted transitions. Every
-colour is a token, so the dark scheme is the same page with the tokens swapped. Motion follows the
-same system: the stage tilts toward the cursor, sections rise into view, and selecting an object
-blooms its ring, draws its links, and slides in its property card.
+- **Share & export**: share links carry the whole model in the URL (gzip + base64). Export the
+  picture as PNG or SVG, and the ontology itself as **JSON-LD**, **Turtle (RDF/OWL)** or a
+  **Mermaid** class diagram; Studio JSON round-trips the layout. Edits also persist in local storage.
 
 ## Releasing a change
 
